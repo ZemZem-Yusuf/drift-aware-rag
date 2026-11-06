@@ -26,6 +26,20 @@ class Settings(BaseSettings):
         description="Postgres DSN. Secret so it never appears in logs or reprs.",
     )
 
+    # LLM access (ADR-0004). Model ids use LiteLLM's "<provider>/<model>" form.
+    generator_model: str = "gemini/gemini-2.5-flash"
+    fallback_model: str | None = Field(
+        default=None, description="Tried when the generator is rate-limited or over budget."
+    )
+    llm_cache_path: Path = Path("data/cache/llm.sqlite")
+    llm_daily_request_limits: dict[str, int] = Field(
+        default_factory=lambda: {"gemini": 200, "groq": 500},
+        description="Real provider calls per UTC day; kept under the free-tier caps.",
+    )
+    # Provider keys use their usual names (no DRIFTRAG_ prefix) and are never logged.
+    gemini_api_key: SecretStr | None = Field(default=None, validation_alias="GEMINI_API_KEY")
+    groq_api_key: SecretStr | None = Field(default=None, validation_alias="GROQ_API_KEY")
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

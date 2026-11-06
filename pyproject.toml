@@ -15,6 +15,7 @@ dependencies = [
     "alembic>=1.14",
     "psycopg[binary]>=3.2",
     "pgvector>=0.3.6",
+    "litellm>=1.60",
 ]
 
 [project.optional-dependencies]
@@ -118,3 +119,9 @@ markers = [
 
 [tool.coverage.run]
 branch = true
+
+# Security floor for a transitive dependency: filelock < 4.2.1 has 13 known CVEs (pip-audit,
+# Nov 2026). LiteLLM >= 1.104 caps filelock < 4, so this resolves LiteLLM to 1.103.10, the
+# newest release without that cap. Remove once LiteLLM allows filelock 4.
+[tool.uv]
+constraint-dependencies = ["filelock>=4.2.1"]
