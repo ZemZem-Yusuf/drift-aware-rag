@@ -22,7 +22,7 @@ from sqlalchemy import Connection, text
 from driftrag.db.registry import IndexVersion, create_index_version, finalize_index_version
 from driftrag.rag.chunking import Chunk, ChunkerConfig, chunk_page, parse_page
 from driftrag.rag.corpus import CorpusIntegrityError, SourceDocument, read_snapshot
-from driftrag.rag.embeddings import Embedder, HashingEmbedder, to_pgvector
+from driftrag.rag.embeddings import E5Embedder, Embedder, HashingEmbedder, to_pgvector
 
 
 @dataclass(frozen=True)
@@ -145,13 +145,18 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Build a new index version from snapshots.")
     parser.add_argument("--snapshot", type=Path, action="append", required=True)
     parser.add_argument("--name", required=True, help="unique index version name")
-    parser.add_argument("--embedder", choices=["hashing"], default="hashing")
-    parser.add_argument("--dim", type=int, default=256)
+    parser.add_argument(
+        "--embedder",
+        choices=["e5", "hashing"],
+        default="e5",
+        help="e5: multilingual model (needs `uv sync --extra embeddings`); hashing: baseline",
+    )
+    parser.add_argument("--dim", type=int, default=256, help="hashing embedder only")
     parser.add_argument("--max-chars", type=int, default=ChunkerConfig().max_chars)
     parser.add_argument("--overlap-chars", type=int, default=ChunkerConfig().overlap_chars)
     args = parser.parse_args(argv)
 
-    embedder = HashingEmbedder(dim=args.dim)
+    embedder: Embedder = E5Embedder() if args.embedder == "e5" else HashingEmbedder(dim=args.dim)
     config = ChunkerConfig(max_chars=args.max_chars, overlap_chars=args.overlap_chars)
     documents = (doc for snapshot in args.snapshot for doc in read_snapshot(snapshot))
     engine = make_engine(get_settings().database_url.get_secret_value())
