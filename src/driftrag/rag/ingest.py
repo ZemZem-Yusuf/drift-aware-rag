@@ -19,7 +19,12 @@ from pathlib import Path
 
 from sqlalchemy import Connection, text
 
-from driftrag.db.registry import IndexVersion, create_index_version, finalize_index_version
+from driftrag.db.registry import (
+    IndexVersion,
+    create_index_version,
+    finalize_index_version,
+    set_alias,
+)
 from driftrag.rag.chunking import Chunk, ChunkerConfig, chunk_page, parse_page
 from driftrag.rag.corpus import CorpusIntegrityError, SourceDocument, read_snapshot
 from driftrag.rag.embeddings import E5Embedder, Embedder, HashingEmbedder, to_pgvector
@@ -154,6 +159,11 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--dim", type=int, default=256, help="hashing embedder only")
     parser.add_argument("--max-chars", type=int, default=ChunkerConfig().max_chars)
     parser.add_argument("--overlap-chars", type=int, default=ChunkerConfig().overlap_chars)
+    parser.add_argument(
+        "--alias",
+        choices=["active", "canary"],
+        help="also point this alias at the new version, in the same transaction",
+    )
     args = parser.parse_args(argv)
 
     embedder: Embedder = E5Embedder() if args.embedder == "e5" else HashingEmbedder(dim=args.dim)
@@ -162,10 +172,13 @@ def main(argv: list[str] | None = None) -> None:
     engine = make_engine(get_settings().database_url.get_secret_value())
     with engine.begin() as conn:
         report = ingest(conn, documents, index_name=args.name, embedder=embedder, config=config)
+        if args.alias:
+            set_alias(conn, args.alias, report.version.id, reason=f"ingest {args.name}")
     print(
         f"index version {report.version.id} '{report.version.name}' ready: "
         f"{report.documents} documents, {report.chunks} chunks, "
         f"embedder {report.version.embedding_model}, chunker {config.config_id}"
+        + (f"; alias '{args.alias}' now points to it" if args.alias else "")
     )
 
 
