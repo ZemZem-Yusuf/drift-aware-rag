@@ -17,6 +17,13 @@ dependencies = [
     "pgvector>=0.3.6",
 ]
 
+[project.optional-dependencies]
+# Real embedding model (CPU). Not needed for tests or CI: `uv sync --extra embeddings`.
+embeddings = [
+    "sentence-transformers>=3.3",
+    "torch>=2.5",
+]
+
 [project.scripts]
 driftrag-corpus = "driftrag.datasets.k8s_docs:main"
 driftrag-ingest = "driftrag.rag.ingest:main"
@@ -34,6 +41,15 @@ dev = [
     "pip-audit>=2.7",
     "testcontainers[postgres]>=4.8",
 ]
+
+# PyTorch from its CPU-only index: avoids gigabytes of CUDA libraries on Linux.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [build-system]
 requires = ["hatchling>=1.26"]
@@ -88,14 +104,17 @@ mypy_path = "src"
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["testcontainers.*", "docker.*"]
+module = ["testcontainers.*", "docker.*", "sentence_transformers.*"]
 ignore_missing_imports = true
 
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers --cov=driftrag --cov=evalkit --cov-report=term-missing:skip-covered"
-markers = ["integration: needs Docker (testcontainers)"]
+markers = [
+    "integration: needs Docker (testcontainers)",
+    "model: downloads and runs a real embedding model (set DRIFTRAG_RUN_MODEL_TESTS=1)",
+]
 
 [tool.coverage.run]
 branch = true
