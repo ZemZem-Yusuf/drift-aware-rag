@@ -11,11 +11,9 @@ only each document's *rank* in each list:
 
 where ``rank_i(d)`` is 1-based, and a document missing from list i contributes nothing for i.
 ``k`` (60 in the paper) dampens the advantage of the very top ranks.
-
-TASK (Youssef): implement ``reciprocal_rank_fusion`` so that ``tests/unit/test_fusion.py`` passes.
-Write it yourself first, then ask for a review.
 """
 
+from collections import defaultdict
 from collections.abc import Sequence
 
 
@@ -41,4 +39,21 @@ def reciprocal_rank_fusion(
             contains a negative value, or if an id appears twice in the same ranking.
             The message must mention ``k``, ``weights`` or ``duplicate`` respectively.
     """
-    raise NotImplementedError("TASK (Youssef): implement reciprocal rank fusion")
+    if k <= 0:
+        raise ValueError(f"k must be a positive integer, got {k}")
+    if weights is None:
+        weights = [1.0] * len(rankings)
+    if len(weights) != len(rankings):
+        raise ValueError(f"weights has {len(weights)} values for {len(rankings)} rankings")
+    if any(weight < 0 for weight in weights):
+        raise ValueError("weights must be non-negative")
+
+    scores: defaultdict[str, float] = defaultdict(float)
+    for ranking, weight in zip(rankings, weights, strict=True):
+        if len(set(ranking)) != len(ranking):
+            raise ValueError("a ranking contains a duplicate id")
+        for rank, doc_id in enumerate(ranking, start=1):
+            scores[doc_id] += weight / (k + rank)
+
+    # Highest score first; equal scores ordered by id so results are reproducible.
+    return sorted(scores.items(), key=lambda item: (-item[1], item[0]))

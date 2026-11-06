@@ -15,13 +15,23 @@ takes up its slot: a retriever must not earn credit twice for the same chunk, an
 position must not move later results up.
 
 Invalid input raises ``ValueError`` with a message that mentions ``k`` or ``relevant``.
-
-TASK (Youssef): implement the three functions so that ``tests/unit/test_metrics.py`` passes.
-Write them yourself first, then ask for a review. Be ready to explain in an interview when
-you'd pick each metric.
 """
 
+import math
 from collections.abc import Collection, Sequence
+
+
+def _relevant_set(relevant: Collection[str]) -> frozenset[str]:
+    """Validate and freeze the relevant ids. Recall and nDCG are undefined without any."""
+    relevant_ids = frozenset(relevant)
+    if not relevant_ids:
+        raise ValueError("relevant must contain at least one id")
+    return relevant_ids
+
+
+def _check_k(k: int) -> None:
+    if k <= 0:
+        raise ValueError(f"k must be a positive integer, got {k}")
 
 
 def recall_at_k(retrieved: Sequence[str], relevant: Collection[str], k: int) -> float:
@@ -30,16 +40,26 @@ def recall_at_k(retrieved: Sequence[str], relevant: Collection[str], k: int) -> 
     Raises:
         ValueError: if ``k <= 0`` or ``relevant`` is empty (recall is undefined).
     """
-    raise NotImplementedError("TASK (Youssef)")
+    _check_k(k)
+    relevant_ids = _relevant_set(relevant)
+    found = relevant_ids.intersection(retrieved[:k])  # a set, so duplicates count once
+    return len(found) / len(relevant_ids)
 
 
 def reciprocal_rank(retrieved: Sequence[str], relevant: Collection[str]) -> float:
     """``1 / rank`` of the first relevant id (rank is 1-based), or ``0.0`` if none is retrieved.
 
+    Duplicates need no special handling: the first time a relevant id appears is, by
+    definition, its first position, and earlier duplicates still occupy their slots.
+
     Raises:
         ValueError: if ``relevant`` is empty.
     """
-    raise NotImplementedError("TASK (Youssef)")
+    relevant_ids = _relevant_set(relevant)
+    for rank, doc_id in enumerate(retrieved, start=1):
+        if doc_id in relevant_ids:
+            return 1.0 / rank
+    return 0.0
 
 
 def ndcg_at_k(retrieved: Sequence[str], relevant: Collection[str], k: int) -> float:
@@ -52,4 +72,17 @@ def ndcg_at_k(retrieved: Sequence[str], relevant: Collection[str], k: int) -> fl
     Raises:
         ValueError: if ``k <= 0`` or ``relevant`` is empty.
     """
-    raise NotImplementedError("TASK (Youssef)")
+    _check_k(k)
+    relevant_ids = _relevant_set(relevant)
+
+    dcg = 0.0
+    seen: set[str] = set()
+    for rank, doc_id in enumerate(retrieved[:k], start=1):
+        if doc_id in relevant_ids and doc_id not in seen:
+            dcg += 1.0 / math.log2(rank + 1)
+        seen.add(doc_id)  # a repeat earns nothing but has still used up its position
+
+    # Best possible ordering: every relevant id first, but only k positions are available.
+    ideal_hits = min(k, len(relevant_ids))
+    idcg = sum(1.0 / math.log2(rank + 1) for rank in range(1, ideal_hits + 1))
+    return dcg / idcg
