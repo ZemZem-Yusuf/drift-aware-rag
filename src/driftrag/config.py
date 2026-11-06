@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     data_dir: Path = Path("data")
     database_url: SecretStr = Field(
-        default=SecretStr("postgresql://driftrag:driftrag@localhost:5432/driftrag"),
+        default=SecretStr("postgresql://driftrag:driftrag@localhost:5433/driftrag"),
         description="Postgres DSN. Secret so it never appears in logs or reprs.",
     )
 
