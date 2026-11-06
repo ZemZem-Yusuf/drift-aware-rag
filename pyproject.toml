@@ -19,6 +19,7 @@ dependencies = [
 
 [project.scripts]
 driftrag-corpus = "driftrag.datasets.k8s_docs:main"
+driftrag-ingest = "driftrag.rag.ingest:main"
 
 [dependency-groups]
 dev = [
