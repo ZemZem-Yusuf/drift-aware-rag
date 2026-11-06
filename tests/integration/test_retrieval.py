@@ -72,12 +72,14 @@ def retriever(engine: Engine, indexed: IngestReport) -> HybridRetriever:
 
 
 def test_best_chunk_is_found_by_both_retrievers(retriever: HybridRetriever) -> None:
-    result = retriever.search("how do I restart the pods of a deployment with kubectl")
+    # A query both searches agree on. (With a vaguer question, the word-matching test embedder
+    # and keyword search can each put a different chunk first; RRF then gives both the same
+    # score and the tie-break by id decides, which is correct but makes a poor test.)
+    result = retriever.search("kubectl rollout restart deployment")
     best = result.chunks[0]
     assert best.heading_path == "Deployments > Restarting a Deployment"
     assert best.document_path == "deployments.md"
-    assert best.vector_rank is not None
-    assert best.keyword_rank is not None
+    assert (best.vector_rank, best.keyword_rank) == (1, 1)
     scores = [c.score for c in result.chunks]
     assert scores == sorted(scores, reverse=True)
 
