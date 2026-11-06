@@ -131,10 +131,13 @@ class HybridRetriever:
             text(
                 """
                 SELECT id FROM rag.chunks,
-                     to_tsquery(
-                         CAST(:config AS regconfig),
+                     -- plainto_tsquery stems once and joins with '&'. Swap to '|' and cast the
+                     -- text straight to tsquery: to_tsquery() would stem the stems again, and
+                     -- stemming isn't idempotent ('exposes' -> 'expos' -> 'expo').
+                     CAST(
                          replace(plainto_tsquery(CAST(:config AS regconfig), :query)::text,
                                  ' & ', ' | ')
+                         AS tsquery
                      ) AS q
                 WHERE index_version_id = :vid AND lang = :lang AND tsv @@ q
                 ORDER BY ts_rank_cd(tsv, q) DESC, id

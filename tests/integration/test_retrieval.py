@@ -106,6 +106,13 @@ def test_keyword_search_matches_partial_questions(retriever: HybridRetriever) ->
     assert service.keyword_rank == 1
 
 
+def test_query_words_are_stemmed_only_once(retriever: HybridRetriever) -> None:
+    # 'exposes' stems to 'expos'; stemming that again would give 'expo' and match nothing.
+    result = retriever.search("exposes")
+    assert result.chunks[0].document_path == "services.md"
+    assert result.chunks[0].keyword_rank == 1
+
+
 def test_wrong_embedding_model_is_refused(engine: Engine, retriever: HybridRetriever) -> None:
     other = HybridRetriever(engine, HashingEmbedder(dim=64))
     with pytest.raises(RetrievalError, match="can't be compared"):
