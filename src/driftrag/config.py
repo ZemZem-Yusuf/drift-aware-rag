@@ -21,8 +21,10 @@ class Settings(BaseSettings):
     env: Literal["dev", "test", "prod"] = "dev"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     data_dir: Path = Path("data")
+    # 127.0.0.1 rather than localhost: on Windows, localhost tries IPv6 first and Docker only
+    # publishes the port on IPv4, which adds a ~10 s delay to every new connection.
     database_url: SecretStr = Field(
-        default=SecretStr("postgresql://driftrag:driftrag@localhost:5433/driftrag"),
+        default=SecretStr("postgresql://driftrag:driftrag@127.0.0.1:5433/driftrag"),
         description="Postgres DSN. Secret so it never appears in logs or reprs.",
     )
 
