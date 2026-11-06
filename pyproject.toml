@@ -1,0 +1,90 @@
+[project]
+name = "drift-aware-rag"
+version = "0.0.1"
+description = "A RAG platform that detects drift across six layers and ships fixes behind an eval gate with canary rollout and automatic rollback."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "Apache-2.0"
+authors = [{ name = "Youssef Zemzem" }]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+]
+
+[project.scripts]
+driftrag-corpus = "driftrag.datasets.k8s_docs:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "hypothesis>=6.120",
+    "httpx>=0.28",
+    "mypy>=1.13",
+    "ruff>=0.8",
+    "pre-commit>=4.0",
+    "poethepoet>=0.31",
+    "pip-audit>=2.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/driftrag", "src/evalkit"]
+
+# ---------------------------------------------------------------- tasks
+# Cross-platform task runner: `uv run poe <task>` (works on Windows without make).
+[tool.poe.tasks]
+lint = "ruff check ."
+format = "ruff format ."
+format-check = "ruff format --check ."
+typecheck = "mypy"
+test = "pytest"
+audit = "pip-audit --skip-editable"
+dev = "uvicorn driftrag.api.app:app --reload"
+corpus = "driftrag-corpus"
+check = ["lint", "format-check", "typecheck", "test"]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",  # pycodestyle, pyflakes
+    "I",            # isort
+    "B",            # bugbear
+    "UP",           # pyupgrade
+    "SIM",          # simplify
+    "C4",           # comprehensions
+    "PTH",          # use pathlib
+    "N",            # naming
+    "PT",           # pytest style
+    "S",            # bandit (security)
+    "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # assert is the point of tests
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+mypy_path = "src"
+plugins = ["pydantic.mypy"]
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --cov=driftrag --cov=evalkit --cov-report=term-missing:skip-covered"
+markers = ["integration: needs Docker (testcontainers)"]
+
+[tool.coverage.run]
+branch = true

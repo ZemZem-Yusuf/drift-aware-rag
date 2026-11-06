@@ -1,0 +1,39 @@
+# Local stack. Run from the repo root:
+#   docker compose -f deploy/compose.yaml --env-file .env --profile core up -d
+# Profiles keep the laptop light: only start what you're working on.
+name: driftrag
+
+services:
+  api:
+    profiles: [core]
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      DRIFTRAG_ENV: dev
+      DRIFTRAG_DATABASE_URL: postgresql://driftrag:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/driftrag
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    profiles: [core]
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: driftrag
+      POSTGRES_DB: driftrag
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5432:5432"  # localhost only, never exposed on the network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U driftrag -d driftrag"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

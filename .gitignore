@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Secrets and local config
+.env
+*.pem
+*.key
+
+# Data (downloaded or generated; never commit corpora)
+data/
+
+# Experiment outputs except committed results
+experiments/*/runs/
+mlruns/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
