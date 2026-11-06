@@ -11,6 +11,10 @@ dependencies = [
     "uvicorn[standard]>=0.32",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.14",
+    "psycopg[binary]>=3.2",
+    "pgvector>=0.3.6",
 ]
 
 [project.scripts]
@@ -27,6 +31,7 @@ dev = [
     "pre-commit>=4.0",
     "poethepoet>=0.31",
     "pip-audit>=2.7",
+    "testcontainers[postgres]>=4.8",
 ]
 
 [build-system]
@@ -47,6 +52,7 @@ test = "pytest"
 audit = "pip-audit --skip-editable"
 dev = "uvicorn driftrag.api.app:app --reload"
 corpus = "driftrag-corpus"
+migrate = "alembic upgrade head"
 check = ["lint", "format-check", "typecheck", "test"]
 
 # ---------------------------------------------------------------- ruff
@@ -79,6 +85,10 @@ strict = true
 files = ["src", "tests"]
 mypy_path = "src"
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["testcontainers.*", "docker.*"]
+ignore_missing_imports = true
 
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
