@@ -13,7 +13,7 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 ```bash
 uv sync                      # create .venv and install dependencies
 uv run poe check             # lint, format check, type check, tests
-uv run poe dev               # API on http://127.0.0.1:8000/health
+uv run poe dev               # API on http://127.0.0.1:8010/docs
 uv run poe corpus            # download Kubernetes docs v1.33 + v1.36 (en, fr) into data/raw
 ```
 
