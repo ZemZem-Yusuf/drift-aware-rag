@@ -17,7 +17,7 @@ For one query:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Literal
 
 from sqlalchemy import Connection, Engine, text
@@ -25,6 +25,7 @@ from sqlalchemy import Connection, Engine, text
 from driftrag.db.registry import Alias, IndexVersion, resolve_alias
 from driftrag.rag.embeddings import Embedder, to_pgvector
 from driftrag.rag.fusion import reciprocal_rank_fusion
+from driftrag.rag.rerank import Reranker
 
 Lang = Literal["en", "fr"]
 _TEXT_SEARCH_CONFIG: dict[Lang, str] = {"en": "english", "fr": "french"}
@@ -44,6 +45,7 @@ class RetrievedChunk:
     score: float
     vector_rank: int | None
     keyword_rank: int | None
+    rerank_score: float | None = None
 
 
 @dataclass(frozen=True)
@@ -62,15 +64,23 @@ class HybridRetriever:
         candidates: int = 50,
         rrf_k: int = 60,
         weights: tuple[float, float] = (1.0, 1.0),
+        reranker: Reranker | None = None,
+        rerank_depth: int = 30,
+        rerank_with_heading: bool = True,
     ) -> None:
         if candidates <= 0:
             raise ValueError("candidates must be positive")
+        if rerank_depth <= 0:
+            raise ValueError("rerank_depth must be positive")
         self._engine = engine
         self._embedder = embedder
         self._alias: Alias = alias
         self._candidates = candidates
         self._rrf_k = rrf_k
         self._weights = weights
+        self._reranker = reranker
+        self._rerank_depth = rerank_depth
+        self._rerank_with_heading = rerank_with_heading
 
     def search(self, query: str, *, lang: Lang = "en", top_k: int = 5) -> RetrievalResult:
         if not query.strip():
@@ -91,9 +101,25 @@ class HybridRetriever:
                 [[str(i) for i in vector_ids], [str(i) for i in keyword_ids]],
                 k=self._rrf_k,
                 weights=list(self._weights),
-            )[:top_k]
-            chunks = self._load(conn, version, fused, vector_ids, keyword_ids)
-        return RetrievalResult(index_version=version, chunks=chunks)
+            )
+            depth = max(top_k, self._rerank_depth) if self._reranker else top_k
+            chunks = self._load(conn, version, fused[:depth], vector_ids, keyword_ids)
+        if self._reranker is not None:
+            chunks = self._rerank(query, chunks)
+        return RetrievalResult(index_version=version, chunks=chunks[:top_k])
+
+    def _rerank(self, query: str, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+        """Re-order candidates by cross-encoder score; ties keep the fused order."""
+        if self._reranker is None or not chunks:
+            return chunks
+        passages = [
+            f"{c.heading_path}\n{c.content}" if self._rerank_with_heading else c.content
+            for c in chunks
+        ]
+        scores = self._reranker.score(query, passages)
+        scored = [replace(c, rerank_score=s) for c, s in zip(chunks, scores, strict=True)]
+        order = sorted(range(len(scored)), key=lambda i: (-scores[i], i))
+        return [scored[i] for i in order]
 
     def _version(self, conn: Connection) -> IndexVersion:
         version = resolve_alias(conn, self._alias)

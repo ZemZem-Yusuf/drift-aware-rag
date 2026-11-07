@@ -1,0 +1,208 @@
+{
+  "experiment": "R1-retrieval",
+  "run": "h2-rerank",
+  "environment": {
+    "recorded_at": "2026-11-07T12:44:20+00:00",
+    "git": {
+      "commit": "3009790dfa1bde430d0cde6079f729af5f69eb8f",
+      "dirty": false
+    },
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "packages": {
+      "drift-aware-rag": "0.0.1",
+      "litellm": "1.103.10",
+      "sentence-transformers": "6.2.0",
+      "torch": "2.15.0+cpu",
+      "sqlalchemy": "2.1.8",
+      "psycopg": "3.3.8",
+      "pgvector": "0.5.1"
+    },
+    "settings": {
+      "generator_model": "gemini/gemini-2.5-flash",
+      "fallback_model": null,
+      "llm_daily_request_limits": {
+        "gemini": 200,
+        "groq": 500
+      },
+      "gemini_key_configured": true,
+      "groq_key_configured": false
+    },
+    "index": {
+      "id": 3,
+      "name": "k8s-1.33-e5-samples",
+      "status": "ready",
+      "embedding_model": "intfloat/multilingual-e5-small@614241f6",
+      "embedding_dim": 384,
+      "chunker_config": {
+        "version": 1,
+        "strategy": "markdown-headings",
+        "config_id": "caf19343c281",
+        "max_chars": 1200,
+        "min_chars": 80,
+        "overlap_chars": 200,
+        "preprocessing": {
+          "code_samples": true
+        }
+      },
+      "created_at": "2026-11-07T11:03:30.176163+00:00",
+      "per_lang": {
+        "en": {
+          "chunks": 14107,
+          "documents": 1444
+        },
+        "fr": {
+          "chunks": 2066,
+          "documents": 211
+        }
+      }
+    }
+  },
+  "config": {
+    "k": 5,
+    "first_stage": {
+      "candidates": 50,
+      "rrf_k": 60,
+      "weights": [
+        1,
+        1
+      ]
+    },
+    "reranker": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1@1427fd65",
+    "grid": [
+      {
+        "name": "baseline",
+        "rerank": false,
+        "depth": 30,
+        "with_heading": true
+      },
+      {
+        "name": "rerank-30",
+        "rerank": true,
+        "depth": 30,
+        "with_heading": true
+      },
+      {
+        "name": "rerank-30-text-only",
+        "rerank": true,
+        "depth": 30,
+        "with_heading": false
+      },
+      {
+        "name": "rerank-50",
+        "rerank": true,
+        "depth": 50,
+        "with_heading": true
+      }
+    ],
+    "comparisons": 3,
+    "corrected_confidence": 0.9833333333333333,
+    "questions": 28
+  },
+  "results": [
+    {
+      "setting": {
+        "name": "baseline",
+        "rerank": false,
+        "depth": 30,
+        "with_heading": true
+      },
+      "recall@5": "0.607 [0.446, 0.762] (n=28)",
+      "mrr": "0.530 [0.381, 0.685] (n=28)",
+      "ndcg@5": "0.487 [0.360, 0.616] (n=28)",
+      "latency_ms": {
+        "p50": 94.8,
+        "p95": 140.5,
+        "mean": 96.6
+      }
+    },
+    {
+      "setting": {
+        "name": "rerank-30",
+        "rerank": true,
+        "depth": 30,
+        "with_heading": true
+      },
+      "recall@5": "0.673 [0.524, 0.810] (n=28)",
+      "mrr": "0.585 [0.440, 0.726] (n=28)",
+      "ndcg@5": "0.549 [0.421, 0.671] (n=28)",
+      "latency_ms": {
+        "p50": 5346.8,
+        "p95": 6201.5,
+        "mean": 5357.0
+      },
+      "recall@5_diff_95": "0.065 [-0.060, 0.196] (n=28)",
+      "recall@5_diff_corrected": "0.065 [-0.089, 0.226] (n=28)",
+      "mrr_diff_95": "0.055 [-0.064, 0.172] (n=28)",
+      "mrr_diff_corrected": "0.055 [-0.090, 0.199] (n=28)",
+      "improved": [
+        "hpa-cpu",
+        "ingress-vs-service",
+        "daemonset-agent",
+        "cronjob-nightly"
+      ],
+      "worse": [
+        "scale-deployment"
+      ]
+    },
+    {
+      "setting": {
+        "name": "rerank-30-text-only",
+        "rerank": true,
+        "depth": 30,
+        "with_heading": false
+      },
+      "recall@5": "0.631 [0.476, 0.780] (n=28)",
+      "mrr": "0.617 [0.463, 0.762] (n=28)",
+      "ndcg@5": "0.551 [0.411, 0.685] (n=28)",
+      "latency_ms": {
+        "p50": 4962.1,
+        "p95": 5997.6,
+        "mean": 5107.1
+      },
+      "recall@5_diff_95": "0.024 [-0.119, 0.167] (n=28)",
+      "recall@5_diff_corrected": "0.024 [-0.155, 0.202] (n=28)",
+      "mrr_diff_95": "0.087 [-0.042, 0.222] (n=28)",
+      "mrr_diff_corrected": "0.087 [-0.071, 0.254] (n=28)",
+      "improved": [
+        "pvc-request-storage",
+        "hpa-cpu",
+        "ingress-vs-service",
+        "daemonset-agent"
+      ],
+      "worse": [
+        "configmap-env",
+        "scale-deployment"
+      ]
+    },
+    {
+      "setting": {
+        "name": "rerank-50",
+        "rerank": true,
+        "depth": 50,
+        "with_heading": true
+      },
+      "recall@5": "0.619 [0.458, 0.768] (n=28)",
+      "mrr": "0.576 [0.429, 0.720] (n=28)",
+      "ndcg@5": "0.521 [0.384, 0.653] (n=28)",
+      "latency_ms": {
+        "p50": 7726.9,
+        "p95": 9448.6,
+        "mean": 6941.8
+      },
+      "recall@5_diff_95": "0.012 [-0.131, 0.155] (n=28)",
+      "recall@5_diff_corrected": "0.012 [-0.167, 0.190] (n=28)",
+      "mrr_diff_95": "0.046 [-0.081, 0.167] (n=28)",
+      "mrr_diff_corrected": "0.046 [-0.108, 0.193] (n=28)",
+      "improved": [
+        "hpa-cpu",
+        "ingress-vs-service",
+        "daemonset-agent"
+      ],
+      "worse": [
+        "scale-deployment",
+        "service-types"
+      ]
+    }
+  ]
+}

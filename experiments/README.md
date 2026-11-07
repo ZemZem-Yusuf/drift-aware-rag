@@ -39,6 +39,7 @@ Each results file contains:
 | [R1/H6](R1-retrieval/) | Do inlined code samples improve retrieval? | 2026-11-07: no (recall@5 Δ 0.000; MRR Δ +0.040 [−0.007, +0.097]); small answer gain on config questions |
 | [R1/H1](R1-retrieval/) | Does embedding section titles with the text improve retrieval? | 2026-11-07: no, rejected (recall@5 -0.024 [-0.107, +0.036]); headings pushed some relevant pages down |
 | [R1/H4](R1-retrieval/) | Do fusion weights or candidate depth improve retrieval? | 2026-11-07: no, rejected (pre-declared grid of 8; best recall@5 diff 0.000; keyword-heavy -0.089) |
+| [R1/H2](R1-retrieval/) | Does a cross-encoder reranker improve retrieval, at what latency? | 2026-11-07: promising, not significant (recall@5 +0.065 [-0.060, +0.196]; 3 vocabulary-gap misses recovered); p50 95 ms -> 5.3 s on CPU; off by default |
 | E1 | Which detector best catches query drift at a fixed false-alarm rate? | Planned |
 | E2 | Which remediation recovers quality fastest and cheapest? | Planned |
 | E3 | Does changing the embedding model cause false drift alarms? | Planned |
