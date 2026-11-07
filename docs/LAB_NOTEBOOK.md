@@ -149,3 +149,25 @@ Measure each hypothesis against this baseline on the same 28 questions, with pai
 H6, H1 and H4 changed what is indexed, what the embedding model sees, and how the two result lists are combined. None fixed the 7 vocabulary-gap misses. The diagnostics agree: for some misses the right page is among the candidates (HPA: vector #5), for others it never is (restart, DaemonSet: not in the vector top 200). Nothing in the pipeline judges whether a passage *answers* the question. Next, in order:
 1. **H2: cross-encoder reranker** over the fused candidates. It reads question and passage together, which is the standard fix when first-stage retrieval finds candidates but ranks them poorly.
 2. **H3: query rewriting** for the misses whose page never enters the candidates: rewrite the question into documentation vocabulary (or add a hypothetical answer, HyDE) before retrieval.
+
+### H2: cross-encoder reranker. Result: promising, not significant, too slow as is
+**Change:** an optional reranking step re-orders the top fused candidates with a multilingual cross-encoder (`cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`, Apache-2.0, 471 MB, pinned revision, safetensors only). The first stage and the index are unchanged. Settings pre-declared and committed before running (commit `3009790`): 4 settings, 3 comparisons, Bonferroni-corrected intervals (98.33%), latency after one warm-up query, CPU only.
+
+**Results** (`results/20261107T124420Z-h2-rerank.json`, n=28):
+
+| Setting | recall@5 | MRR | recall@5 diff 95% | corrected | p50 / p95 latency |
+|---|---|---|---|---|---|
+| no reranking (baseline) | 0.607 | 0.530 | — | — | 95 / 141 ms |
+| rerank top 30, section path + text | **0.673** | 0.585 | +0.065 [−0.060, +0.196] | [−0.089, +0.226] | 5,347 / 6,202 ms |
+| rerank top 30, text only | 0.631 | 0.617 | +0.024 [−0.119, +0.167] | [−0.155, +0.202] | 4,962 / 5,998 ms |
+| rerank top 50, section path + text | 0.619 | 0.576 | +0.012 [−0.131, +0.155] | [−0.167, +0.190] | 7,727 / 9,449 ms |
+
+- **First recovery of vocabulary-gap misses:** with top-30 reranking, `hpa-cpu`, `daemonset-agent` and `cronjob-nightly` (3 of the 7 misses) and `ingress-vs-service` gain a relevant section in the top 5; `scale-deployment` loses one. This matches the H1/H4 diagnosis: those pages were among the candidates but ranked too low.
+- **Not significant:** +0.065 is 4 questions gained and 1 lost out of 28; no interval excludes zero. With 28 questions this effect size can't be separated from noise. That's a **sample-size limitation**, not evidence against reranking.
+- **Cost:** about 56× slower per query on a laptop CPU (95 ms → 5.3 s), dominated by scoring 30 passages of up to 512 tokens. Unacceptable for interactive use without optimisation.
+- `restart-deployment` is still missed: its page isn't in the top 30 fused candidates (fused rank 58 in E0), so the reranker never sees it.
+- Reranking deeper (top 50) gave the reranker more chances to promote wrong passages and was worse than top 30, though the difference is within noise.
+
+**Decision:** don't enable reranking by default yet. Keep the code (off by default). Two things are needed before it can be adopted:
+1. **More verified questions.** The golden set needs to grow (from 28 to roughly 80–100 retrieval questions) to have a reasonable chance of detecting an effect of this size. Every hypothesis so far was tested at a sample size that could only detect large effects.
+2. **Latency.** Candidates to measure: shorter pairs (max 256 tokens), fewer candidates (top 20), an ONNX or int8-quantised model, or reranking only when first-stage scores are ambiguous.
