@@ -9,6 +9,7 @@ from driftrag.rag.chunking import ChunkerConfig
 from driftrag.rag.corpus import read_snapshot
 from driftrag.rag.embeddings import HashingEmbedder
 from driftrag.rag.ingest import IngestReport, ingest
+from driftrag.rag.rerank import KeywordOverlapReranker
 from driftrag.rag.retrieval import HybridRetriever, RetrievalError
 from tests.snapshots import write_snapshot
 
@@ -119,3 +120,27 @@ def test_wrong_embedding_model_is_refused(engine: Engine, retriever: HybridRetri
     other = HybridRetriever(engine, HashingEmbedder(dim=64))
     with pytest.raises(RetrievalError, match="can't be compared"):
         other.search("pods")
+
+
+def test_reranker_reorders_candidates_and_records_scores(
+    engine: Engine, indexed: IngestReport, retriever: HybridRetriever
+) -> None:
+    query = "ConfigMap stores configuration data key-value"
+    plain = retriever.search(query, top_k=4)
+    reranked = HybridRetriever(
+        engine, EMBEDDER, reranker=KeywordOverlapReranker(), rerank_depth=10
+    ).search(query, top_k=4)
+
+    assert all(c.rerank_score is None for c in plain.chunks)
+    assert all(c.rerank_score is not None for c in reranked.chunks)
+    scores = [c.rerank_score or 0.0 for c in reranked.chunks]
+    assert scores == sorted(scores, reverse=True)
+    assert reranked.chunks[0].document_path == "configmaps.md"
+    assert {c.chunk_id for c in reranked.chunks} <= {
+        c.chunk_id for c in retriever.search(query, top_k=10).chunks
+    }
+
+
+def test_rerank_depth_must_be_positive(engine: Engine) -> None:
+    with pytest.raises(ValueError, match="rerank_depth"):
+        HybridRetriever(engine, EMBEDDER, reranker=KeywordOverlapReranker(), rerank_depth=0)
