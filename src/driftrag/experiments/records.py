@@ -53,9 +53,23 @@ def git_state(repo: Path) -> dict[str, Any]:
         ).stdout.strip()
 
     try:
-        return {"commit": run("rev-parse", "HEAD"), "dirty": bool(run("status", "--porcelain"))}
+        commit = run("rev-parse", "HEAD")
+        changes = run("status", "--porcelain", "--untracked-files=all").splitlines()
     except (OSError, subprocess.CalledProcessError):
         return {"commit": None, "dirty": None}
+    return {"commit": commit, "dirty": any(not _is_new_result_file(line) for line in changes)}
+
+
+def _is_new_result_file(status_line: str) -> bool:
+    """New (untracked) run outputs don't make the code dirty: earlier runs create them.
+
+    Anything else, including untracked source files and any modified tracked file (even a
+    results file), still counts as dirty.
+    """
+    if not status_line.startswith("?? "):
+        return False
+    parts = status_line[3:].strip().strip('"').split("/")
+    return len(parts) == 4 and parts[0] == "experiments" and parts[2] == "results"
 
 
 def package_versions(names: tuple[str, ...] = TRACKED_PACKAGES) -> dict[str, str | None]:

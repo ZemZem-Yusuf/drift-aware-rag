@@ -68,3 +68,27 @@ def test_save_run_writes_a_complete_record(tmp_path: Path) -> None:
 def test_run_name_is_restricted(tmp_path: Path, name: str) -> None:
     with pytest.raises(ValueError, match="run name"):
         save_run(tmp_path, "E9", name, environment={}, config={}, results=[])
+
+
+def test_new_result_files_do_not_make_the_tree_dirty(tmp_path: Path) -> None:
+    git_binary = shutil.which("git")
+    if git_binary is None:
+        pytest.skip("git is not installed")
+
+    def git(*args: str) -> None:
+        subprocess.run([git_binary, *args], cwd=tmp_path, check=True, capture_output=True)  # noqa: S603
+
+    git("init", "-q")
+    git("config", "user.email", "t@example.com")
+    git("config", "user.name", "t")
+    (tmp_path / "a.txt").write_text("1", encoding="utf-8")
+    git("add", "a.txt")
+    git("commit", "-q", "-m", "init")
+
+    results = tmp_path / "experiments" / "R1" / "results"
+    results.mkdir(parents=True)
+    (results / "run.json").write_text("{}", encoding="utf-8")
+    assert git_state(tmp_path)["dirty"] is False  # an earlier run's output
+
+    (tmp_path / "experiments" / "R1" / "run.py").write_text("x", encoding="utf-8")
+    assert git_state(tmp_path)["dirty"] is True  # an uncommitted script is real dirt
