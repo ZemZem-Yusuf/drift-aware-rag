@@ -35,6 +35,7 @@ Each results file contains:
 | ID | Question | Status |
 |---|---|---|
 | [E0](E0-smoke/) | Does the full pipeline work end to end on the real corpus? | Done 2026-11-07: works; 1 retrieval failure diagnosed |
+| [R1](R1-retrieval/) | How good is retrieval on the human-verified golden set? | Baseline 2026-11-07: recall@5 0.607 [0.446, 0.762], n=28 |
 | E1 | Which detector best catches query drift at a fixed false-alarm rate? | Planned |
 | E2 | Which remediation recovers quality fastest and cheapest? | Planned |
 | E3 | Does changing the embedding model cause false drift alarms? | Planned |

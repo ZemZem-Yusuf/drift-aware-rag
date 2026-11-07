@@ -65,3 +65,23 @@ Don't tune by intuition. Next: build the **golden set** (~50 questions with know
 - A second model (ChatGPT) pre-reviewed the drafts with the rule "every claim must be supported by the referenced sections". This was **an LLM pass, not a human verification**: it's labelled as such in `golden/reviews/`, and no item was marked verified from it. It tightened 12 answers; for 15 the claims were confirmed in the full section text (the first review sheet had shown only 700 characters per section, which is fixed).
 - **Corpus gap found through the review:** `configMapRef`, `minAvailable` and the default-deny `podSelector: {}` appear nowhere in the index. The docs include their YAML examples from `content/<lang>/examples/` through `code_sample` shortcodes, and the downloader only fetched `content/<lang>/docs/` (the ConfigMap task page alone references 9 samples; 0 example files are indexed). **H6: resolve code samples into the page text during ingestion.** Probably the highest-impact fix so far for task and "how do I configure" questions; to be measured against the baseline.
 - Human review of the golden set (round 2) is pending; no reportable baseline yet.
+
+### Human review and the first reportable baseline
+- **Human review** (Youssef Zemzem, two passes, sheets kept in `golden/reviews/`): 32 items verified (28 retrieval, 4 out-of-scope); 2 revised and awaiting confirmation. The review corrected real errors, e.g. `imagePullPolicy: Always` resolves the digest and pulls only if it isn't cached, and `ExternalName` doesn't expose a Service externally.
+- Two tooling bugs found during review and fixed: the out-of-scope instructions were ambiguous ("Reject" was ticked for valid refusal tests), and the sheet parser ignored ticks written as `[x ]` / `[ x]`.
+
+**R1 baseline** (`experiments/R1-retrieval/results/20261107T105047Z-baseline.json`; commit `d4a61c3`, clean tree; index `k8s-1.33-e5`; hybrid retrieval, 50 candidates per search, RRF k=60; n=28 verified questions):
+
+| Metric | Value | 95% bootstrap interval |
+|---|---|---|
+| recall@5 | **0.607** | [0.446, 0.762] |
+| recall@10 | 0.667 | [0.512, 0.810] |
+| MRR | 0.490 | [0.351, 0.634] |
+| nDCG@10 | 0.492 | [0.369, 0.616] |
+
+- By category, recall@5: concept 0.66 (n=15), **task 0.41 (n=7)**, command 0.75 (n=4), troubleshooting 0.67 (n=2). English 0.57 (n=23), French 0.80 (n=5). The subgroups are too small to compare with confidence; they point to where to look, not to conclusions.
+- 7 questions have no relevant section in the top 10: `restart-deployment`, `pvc-request-storage`, `hpa-cpu`, `daemonset-agent`, `cronjob-nightly`, `pdb-keep-replicas`, and (top-5 only) `taint-dedicated-node` (first hit at rank 10). Most are vocabulary-gap or "how do I configure" questions.
+- **Reading:** about 4 in 10 questions don't get a relevant section in the top 5, so the generator can't answer them from the documentation. Task questions do worst, which fits hypothesis H6 (the YAML examples are missing from the index).
+
+### Next
+Measure each hypothesis against this baseline on the same 28 questions, with paired bootstrap intervals (`evalkit.stats.paired_difference_ci`): H6 code samples, H1 heading in the embedded text, H5 HTML cleanup, H2 reranker, H4 fusion weights, H3 query rewriting. One change at a time; every run saved.
