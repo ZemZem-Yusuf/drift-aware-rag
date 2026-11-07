@@ -1,3 +1,5 @@
+> **LLM pre-review, not a human verification.** The decisions and notes below were produced by ChatGPT and were not checked by a person. They were used only to tighten the drafts (see each item's notes in `k8s-1.33.jsonl`); no item was marked verified from this pass.
+
 # Golden set review
 
 For each question below:

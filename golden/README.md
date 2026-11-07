@@ -4,9 +4,14 @@
 reference answer. Used to measure retrieval (recall@k, MRR, nDCG) and, later, answer quality.
 
 ## How it was built
-1. **Drafted** by an LLM (`origin: llm-drafted`) from the real corpus: every relevant section
-   was looked up in the ingested index, so each reference points to text that exists.
-2. **Reviewed by a person**, item by item, against the documentation excerpts shown in
+1. **Drafted** by an LLM (Claude; `origin: llm-drafted`) from the real corpus: every relevant
+   section was looked up in the ingested index, so each reference points to text that exists.
+2. **LLM pre-review** by a second, independent model (ChatGPT, 2026-11-07), applying the rule
+   "every claim in a reference answer must be supported by the referenced sections". Its notes
+   were used to tighten 12 answers; for 15 others the claims were confirmed in the full section
+   text. This pass was **not** checked by a person and verified nothing; it's kept as-is in
+   [`reviews/`](reviews/) and summarised in each item's notes.
+3. **Human review**, item by item, against the full documentation sections shown in
    [`REVIEW.md`](REVIEW.md) (`uv run driftrag-golden sheet` / `apply`). Only items marked
    `verified` (with the reviewer's name) count in reported numbers.
 
