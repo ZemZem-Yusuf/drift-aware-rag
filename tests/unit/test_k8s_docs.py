@@ -88,3 +88,22 @@ def test_download_rejects_invalid_versions(version: str, tmp_path: Path) -> None
 def test_cli_rejects_invalid_language(tmp_path: Path) -> None:
     with pytest.raises(SystemExit):
         main(["--langs", "../etc", "--out", str(tmp_path)])
+
+
+def test_examples_are_kept_separately_from_pages(tmp_path: Path) -> None:
+    archive = make_archive(
+        {
+            f"{TOP}/content/en/docs/tasks/cm.md": b"# ConfigMap",
+            f"{TOP}/content/en/examples/configmap/env.yaml": b"envFrom: []",
+            f"{TOP}/content/en/examples/images/diagram.png": b"\x89PNG",
+            f"{TOP}/content/en/examples/../../../evil.yaml": b"x",
+        }
+    )
+    manifests = extract_docs(archive, version="1.33", langs=("en",), out_dir=tmp_path)
+
+    assert [f.path for f in manifests["en"].files] == ["tasks/cm.md"]
+    assert [e.path for e in manifests["en"].examples] == ["configmap/env.yaml"]
+    assert (tmp_path / "v1.33/en/_examples/configmap/env.yaml").read_bytes() == b"envFrom: []"
+    assert not list(tmp_path.rglob("*.png"))
+    saved = json.loads((tmp_path / "v1.33/en/manifest.json").read_text(encoding="utf-8"))
+    assert saved["examples"][0]["path"] == "configmap/env.yaml"

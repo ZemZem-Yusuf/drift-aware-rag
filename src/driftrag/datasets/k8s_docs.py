@@ -11,9 +11,11 @@ Each snapshot is written to ``<out>/k8s-docs/v<version>/<lang>/...`` with a ``ma
 recording the source URL, git ref, license and a SHA-256 per file, so experiments can prove
 which corpus they ran on.
 
-The archive is read as a stream and only Markdown files under ``content/<lang>/docs/`` are
-kept. Paths are validated before writing (no absolute paths, no ``..``), because an archive is
-untrusted input.
+The archive is read as a stream and only two kinds of files are kept: Markdown pages under
+``content/<lang>/docs/``, and the example files under ``content/<lang>/examples/`` that pages
+include through ``code_sample`` shortcodes (YAML manifests and similar, stored in
+``<snapshot>/_examples/`` and listed separately in the manifest). Paths are validated before
+writing (no absolute paths, no ``..``), because an archive is untrusted input.
 """
 
 from __future__ import annotations
@@ -55,6 +57,28 @@ class Manifest:
     license: str
     retrieved_at: str
     files: list[FileEntry] = field(default_factory=list)
+    examples: list[FileEntry] = field(default_factory=list)
+
+
+EXAMPLES_DIR = "_examples"
+EXAMPLE_SUFFIXES = frozenset(
+    {".yaml", ".yml", ".json", ".conf", ".py", ".sh", ".txt", ".toml", ".properties", ".cfg"}
+)
+
+
+def _content_relative_path(
+    member_name: str, lang: str, subdir: str, suffixes: frozenset[str]
+) -> PurePosixPath | None:
+    parts = PurePosixPath(member_name).parts
+    if len(parts) < 5 or member_name.startswith("/"):
+        return None
+    _top, content, member_lang, directory, *rest = parts
+    if (content, member_lang, directory) != ("content", lang, subdir):
+        return None
+    relative = PurePosixPath(*rest)
+    if relative.suffix not in suffixes or not is_safe_relative(relative):
+        return None
+    return relative
 
 
 def docs_relative_path(member_name: str, lang: str) -> PurePosixPath | None:
@@ -63,16 +87,12 @@ def docs_relative_path(member_name: str, lang: str) -> PurePosixPath | None:
     Returns ``None`` for anything that isn't a Markdown doc page in that language, or whose
     path is unsafe. Archive names look like ``website-release-1.33/content/en/docs/a/b.md``.
     """
-    parts = PurePosixPath(member_name).parts
-    if len(parts) < 5 or member_name.startswith("/"):
-        return None
-    _top, content, member_lang, docs, *rest = parts
-    if (content, member_lang, docs) != ("content", lang, "docs"):
-        return None
-    relative = PurePosixPath(*rest)
-    if relative.suffix != ".md" or not is_safe_relative(relative):
-        return None
-    return relative
+    return _content_relative_path(member_name, lang, "docs", frozenset({".md"}))
+
+
+def examples_relative_path(member_name: str, lang: str) -> PurePosixPath | None:
+    """Map an archive member name to its path below ``content/<lang>/examples/``."""
+    return _content_relative_path(member_name, lang, "examples", EXAMPLE_SUFFIXES)
 
 
 def is_safe_relative(path: PurePosixPath) -> bool:
@@ -106,25 +126,32 @@ def extract_docs(
                 continue
             for lang in langs:
                 relative = docs_relative_path(member.name, lang)
+                is_example = False
+                if relative is None:
+                    relative = examples_relative_path(member.name, lang)
+                    is_example = True
                 if relative is None:
                     continue
                 handle = tar.extractfile(member)
                 if handle is None:  # pragma: no cover - isfile() members always have data
                     continue
                 data = handle.read()
-                target = out_dir / f"v{version}" / lang / Path(*relative.parts)
+                snapshot = out_dir / f"v{version}" / lang
+                target = (snapshot / EXAMPLES_DIR if is_example else snapshot).joinpath(
+                    *relative.parts
+                )
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(data)
-                manifests[lang].files.append(
-                    FileEntry(
-                        path=relative.as_posix(),
-                        sha256=hashlib.sha256(data).hexdigest(),
-                        bytes=len(data),
-                    )
+                entry = FileEntry(
+                    path=relative.as_posix(),
+                    sha256=hashlib.sha256(data).hexdigest(),
+                    bytes=len(data),
                 )
+                (manifests[lang].examples if is_example else manifests[lang].files).append(entry)
                 break
     for lang, manifest in manifests.items():
         manifest.files.sort(key=lambda entry: entry.path)
+        manifest.examples.sort(key=lambda entry: entry.path)
         manifest_path = out_dir / f"v{version}" / lang / "manifest.json"
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_path.write_text(json.dumps(asdict(manifest), indent=2), encoding="utf-8")
@@ -155,7 +182,10 @@ def main(argv: list[str] | None = None) -> None:
         manifests = download(version, langs, out_dir)
         for lang, manifest in manifests.items():
             total = sum(entry.bytes for entry in manifest.files)
-            print(f"v{version} [{lang}]: {len(manifest.files)} files, {total / 1e6:.1f} MB")
+            print(
+                f"v{version} [{lang}]: {len(manifest.files)} pages, {total / 1e6:.1f} MB, "
+                f"{len(manifest.examples)} example files"
+            )
 
 
 if __name__ == "__main__":
