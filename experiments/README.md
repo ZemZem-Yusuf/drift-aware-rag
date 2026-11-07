@@ -1,0 +1,43 @@
+# Experiments
+
+Every number this project reports comes from a run saved here, which anyone can reproduce.
+
+## Layout
+
+```
+experiments/<ID>-<name>/
+  run.py            the script that produces the results (committed before it is run)
+  results/*.json    generated runs, one file per run, never edited by hand
+  annotations.md    human judgements on the runs, dated and signed
+```
+
+Each results file contains:
+
+| Field | What it records |
+|---|---|
+| `environment.git` | commit hash, and `dirty: true` if the working tree had uncommitted changes |
+| `environment.packages`, `python`, `platform` | software versions |
+| `environment.settings` | models and limits (secrets are never recorded) |
+| `environment.index` | index version, embedding model, chunker config and chunk counts |
+| `config` | parameters of this run |
+| `results` | raw outputs and measurements |
+
+## Rules
+
+1. **Commit the script, then run it.** A run must point to a clean commit (`dirty: false`).
+2. **Never edit a results file.** Wrong run? Fix the script and run again; keep both files.
+3. **Judgements go in `annotations.md`,** separate from generated data, with a date and a name.
+4. **LLM answers are cached** (by model, prompt and parameters), so rerunning a script reproduces the same answers without spending quota.
+5. **Negative results are kept.** A hypothesis that didn't help is still a result.
+
+## Index
+
+| ID | Question | Status |
+|---|---|---|
+| [E0](E0-smoke/) | Does the full pipeline work end to end on the real corpus? | Done 2026-11-07: works; 1 retrieval failure diagnosed |
+| E1 | Which detector best catches query drift at a fixed false-alarm rate? | Planned |
+| E2 | Which remediation recovers quality fastest and cheapest? | Planned |
+| E3 | Does changing the embedding model cause false drift alarms? | Planned |
+| E4 | Can the LLM judge be trusted as an eval gate (agreement with human labels)? | Planned |
+| E5 | Does the probe set catch a silent upstream model change? | Planned |
+| E6 | How much traffic must be judged to detect answer drift? | Planned |
