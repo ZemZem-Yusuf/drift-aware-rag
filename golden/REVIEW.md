@@ -17,243 +17,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 ---
 
-### `pod-service-account`
-
-**Question** (en, task): How do I make a pod use a specific service account?
-
-**Reference answer:** Set `spec.serviceAccountName` in the Pod spec; otherwise the namespace's `default` ServiceAccount is used.
-
-**Relevant documentation:**
-- `tasks/configure-pod-container/configure-service-account.md`, section: *Configure Service Accounts for Pods > Use more than one ServiceAccount*
-  > [Configure Service Accounts for Pods > Use more than one ServiceAccount {#use-multiple-service-accounts}]
-  > Every namespace has at least one ServiceAccount: the default ServiceAccount
-  > resource, called `default`. You can list all ServiceAccount resources in your
-  > current namespace
-  > with:
-  > ```shell
-  > kubectl get serviceaccounts
-  > ```
-  > The output is similar to this:
-  > ```
-  > NAME      SECRETS    AGE
-  > default   1          1d
-  > ```
-  > You can create additional ServiceAccount objects like this:
-  > ```shell
-  > kubectl apply -f - <<EOF
-  > apiVersion: v1
-  > kind: ServiceAccount
-  > metadata:
-  >   name: build-robot
-  > EOF
-  > ```
-  > The name of a ServiceAccount object must be a valid
-  > DNS subdomain name.
-  > If you get a complete dump of the service account object, like this:
-  > ```shell
-  > kubectl get serviceaccounts/build-robot -o yaml
-  > ```
-  > The output is similar to this:
-  > ```yaml
-  > apiVersion: v1
-  > kind: ServiceAccount
-  > metadata:
-  >   creationTimestamp: 2019-06-16T00:12:34Z
-  >   name: build-robot
-  >   namespace: default
-  >   resourceVersion: "272500"
-  >   uid: 721ab723-13bc-11e5-aec2-42010af0021e
-  > ```
-  > You can use authorization plugins to
-  > set permissions on service accounts.
-  > To use a non-default service account, set the `spec.serviceAccountName`
-  > field of a Pod to the name of the ServiceAccount you wish to use.
-  > To use a non-default service account, set the `spec.serviceAccountName`
-  > field of a Pod to the name of the ServiceAccount you wish to use.
-  > You can only set the `serviceAccountName` field when creating a Pod, or in a
-  > template for a new Pod. You cannot update the `.spec.serviceAccountName` field
-  > of a Pod that already exists.
-  > The `.spec.serviceAccount` field is a deprecated alias for `.spec.serviceAccountName`.
-  > If you want to remove the fields from a workload resource, set both fields to empty explicitly
-  > on the pod template.
-  > [Configure Service Accounts for Pods > Use more than one ServiceAccount {#use-multiple-service-accounts} > Cleanup {#cleanup-use-multiple-service-accounts}]
-  > If you tried creating `build-robot` ServiceAccount from the example above,
-  > you can clean it up by running:
-  > ```shell
-  > kubectl delete serviceaccount/build-robot
-  > ```
-- `tasks/configure-pod-container/configure-service-account.md`, section: *Configure Service Accounts for Pods > Use the default service account to access the API server*
-  > [Configure Service Accounts for Pods > Use the default service account to access the API server]
-  > When Pods contact the API server, Pods authenticate as a particular
-  > ServiceAccount (for example, `default`). There is always at least one
-  > ServiceAccount in each namespace.
-  > Every Kubernetes namespace contains at least one ServiceAccount: the default
-  > ServiceAccount for that namespace, named `default`.
-  > If you do not specify a ServiceAccount when you create a Pod, Kubernetes
-  > automatically assigns the ServiceAccount named `default` in that namespace.
-  > You can fetch the details for a Pod you have created. For example:
-  > ```shell
-  > kubectl get pods/<podname> -o yaml
-  > ```
-  > In the output, you see a field `spec.serviceAccountName`.
-  > Kubernetes automatically
-  > sets that value if you don't specify it when you create a Pod.
-  > An application running inside a Pod can access the Kubernetes API using
-  > automatically mounted service account credentials.
-  > See accessing the Cluster to learn more.
-  > When a Pod authenticates as a ServiceAccount, its level of access depends on the
-  > authorization plugin and policy
-  > in use.
-  > When a Pod authenticates as a ServiceAccount, its level of access depends on the
-  > authorization plugin and policy
-  > in use.
-  > The API credentials are automatically revoked when the Pod is deleted, even if
-  > finalizers are in place. In particular, the API credentials are revoked 60 seconds
-  > beyond the `.metadata.deletionTimestamp` set on the Pod (the deletion timestamp
-  > is typically the time that the **delete** request was accepted plus the Pod's
-  > termination grace period).
-  > [Configure Service Accounts for Pods > Use the default service account to access the API server > Opt out of API credential automounting]
-  > If you don't want the kubelet
-  > to automatically mount a ServiceAccount's API credentials, you can opt out of
-  > the default behavior.
-  > You can opt out of automounting API credentials on `/var/run/secrets/kubernetes.io/serviceaccount/token`
-  > for a service account by setting `automountServiceAccountToken: false` on the ServiceAccount:
-  > For example:
-  > ```yaml
-  > apiVersion: v1
-  > kind: ServiceAccount
-  > metadata:
-  >   name: build-robot
-  > automountServiceAccountToken: false
-  > ...
-  > ```
-  > You can also opt out of automounting API credentials for a particular Pod:
-  > ```yaml
-  > apiVersion: v1
-  > kind: Pod
-  > metadata:
-  >   name: my-pod
-  > spec:
-  >   serviceAccountName: build-robot
-  >   automountServiceAccountToken: false
-  >   ...
-  > ```
-  > If both the ServiceAccount and the Pod's `.spec` specify a value for
-  > `automountServiceAccountToken`, the Pod spec takes precedence.
-
-*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): added the section that documents the default ServiceAccount being assigned
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The second excerpt explicitly confirms that Kubernetes automatically assigns the namespace's default ServiceAccount when none is specified.
-
----
-
-### `init-stuck`
-
-**Question** (en, troubleshooting): My pod is stuck at Init:0/1. How do I find out what's wrong?
-
-**Reference answer:** A status of `Init:N/M` means N of the Pod's M init containers have completed. Inspect the init containers with `kubectl describe pod` and read their logs with `kubectl logs <pod> -c <init-container>`.
-
-**Relevant documentation:**
-- `tasks/debug/debug-application/debug-init-containers.md`, section: *Debug Init Containers > Checking the status of Init Containers*
-  > [Debug Init Containers > Checking the status of Init Containers]
-  > Display the status of your pod:
-  > ```shell
-  > kubectl get pod <pod-name>
-  > ```
-  > For example, a status of `Init:1/2` indicates that one of two Init Containers
-  > has completed successfully:
-  > ```
-  > NAME         READY     STATUS     RESTARTS   AGE
-  > <pod-name>   0/1       Init:1/2   0          7s
-  > ```
-  > See Understanding Pod status for more examples of
-  > status values and their meanings.
-- `tasks/debug/debug-application/debug-init-containers.md`, section: *Debug Init Containers > Getting details about Init Containers*
-  > [Debug Init Containers > Getting details about Init Containers]
-  > View more detailed information about Init Container execution:
-  > ```shell
-  > kubectl describe pod <pod-name>
-  > ```
-  > For example, a Pod with two Init Containers might show the following:
-  > ```
-  > Init Containers:
-  >   <init-container-1>:
-  >     Container ID:    ...
-  >     ...
-  >     State:           Terminated
-  >       Reason:        Completed
-  >       Exit Code:     0
-  >       Started:       ...
-  >       Finished:      ...
-  >     Ready:           True
-  >     Restart Count:   0
-  >     ...
-  >   <init-container-2>:
-  >     Container ID:    ...
-  >     ...
-  >     State:           Waiting
-  >       Reason:        CrashLoopBackOff
-  >     Last State:      Terminated
-  >       Reason:        Error
-  >       Exit Code:     1
-  >       Started:       ...
-  >       Finished:      ...
-  >     Ready:           False
-  >     Restart Count:   3
-  >     ...
-  > ```
-  > You can also access the Init Container statuses programmatically by reading the
-  > `status.initContainerStatuses` field on the Pod Spec:
-  > ```shell
-  > kubectl get pod nginx --template '{{.status.initContainerStatuses}}'
-  > ```
-  > This command will return the same information as above in raw JSON.
-- `tasks/debug/debug-application/debug-init-containers.md`, section: *Debug Init Containers > Accessing logs from Init Containers*
-  > [Debug Init Containers > Accessing logs from Init Containers]
-  > Pass the Init Container name along with the Pod name
-  > to access its logs.
-  > ```shell
-  > kubectl logs <pod-name> -c <init-container-2>
-  > ```
-  > Init Containers that run a shell script print
-  > commands as they're executed. For example, you can do this in Bash by running
-  > `set -x` at the beginning of the script.
-- `tasks/debug/debug-application/debug-init-containers.md`, section: *Debug Init Containers > Understanding Pod status*
-  > [Debug Init Containers > Understanding Pod status]
-  > A Pod status beginning with `Init:` summarizes the status of Init Container
-  > execution. The table below describes some example status values that you might
-  > see while debugging Init Containers.
-  > Status | Meaning
-  > ------ | -------
-  > `Init:N/M` | The Pod has `M` Init Containers, and `N` have completed so far.
-  > `Init:Error` | An Init Container has failed to execute.
-  > `Init:CrashLoopBackOff` | An Init Container has failed repeatedly.
-  > `Pending` | The Pod has not yet begun executing Init Containers.
-  > `PodInitializing` or `Running` | The Pod has already finished executing Init Containers.
-
-*Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): added the section that documents kubectl describe pod for init containers
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The excerpts support the Init:N/M meaning, kubectl describe pod, and retrieving logs with kubectl logs -c.
-
----
-
 ### `termination-message`
 
 **Question** (en, troubleshooting): How can a container report why it failed, so the reason shows up in the Pod's status?
 
-**Reference answer:** Write the reason to the termination message file (`/dev/termination-log` by default); it appears in the container's last terminated state (`lastState.terminated.message`, e.g. via `kubectl get pod <pod> --output=yaml`). `terminationMessagePolicy: FallbackToLogsOnError` uses the logs if the file is empty.
+**Reference answer:** Write the reason to the termination message file (`/dev/termination-log` by default); it appears in the container's last terminated state (`lastState.terminated.message`, e.g. via `kubectl get pod <pod> --output=yaml`). With `terminationMessagePolicy: FallbackToLogsOnError`, the end of the logs is used if the file is empty and the container exited with an error.
 
 **Relevant documentation:**
 - `tasks/debug/debug-application/determine-reason-pod-failure.md`, section: *Determine the Reason for Pod Failure > Writing and reading a termination message*
@@ -358,15 +126,15 @@ The excerpts support the Init:N/M meaning, kubectl describe pod, and retrieving 
   > * Learn about Pod status and Pod phase.
   > * Learn about container states.
 
-*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): question now refers to the Pod status, as documented, instead of kubectl describe
+*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): question now refers to the Pod status, as documented, instead of kubectl describe | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): FallbackToLogsOnError: both conditions stated
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [x] ✏️ Needs changes (say what under Notes)
+- [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-Specify that FallbackToLogsOnError uses the logs when the termination-message file is empty and the container exited with an error. The answer currently omits the second condition.
+
 
 ---
 
@@ -374,7 +142,7 @@ Specify that FallbackToLogsOnError uses the logs when the termination-message fi
 
 **Question** (en, troubleshooting): My container keeps getting OOMKilled. Why?
 
-**Reference answer:** It uses more memory than its memory limit, so it can be terminated (OOMKilled); the kubelet restarts it if its restart policy allows.
+**Reference answer:** It uses more memory than its memory limit, so it can be terminated (OOMKilled); the kubelet restarts it if it can be restarted.
 
 **Relevant documentation:**
 - `tasks/configure-pod-container/assign-memory-resource.md`, section: *Assign Memory Resources to Containers and Pods > Exceed a Container's memory limit*
@@ -476,91 +244,15 @@ Specify that FallbackToLogsOnError uses the logs when the termination-message fi
   > kubectl delete pod memory-demo-2 --namespace=mem-example
   > ```
 
-*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): removed the undocumented recommendations
+*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): removed the undocumented recommendations | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): restart wording aligned with the docs
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [x] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The excerpt says the kubelet restarts the container if it can be restarted. It does not explicitly attribute that behavior to the restart policy. Change the wording to “if the container can be restarted” or add a supporting restart-policy excerpt.
-
----
-
-### `pending-insufficient-memory`
-
-**Question** (en, troubleshooting): My pod stays Pending with an 'Insufficient memory' event. What does that mean?
-
-**Reference answer:** Its memory request is larger than the memory available on any node, so the Pod can't be scheduled and stays Pending.
-
-**Relevant documentation:**
-- `tasks/configure-pod-container/assign-memory-resource.md`, section: *Assign Memory Resources to Containers and Pods > Specify a memory request that is too big for your Nodes*
-  > [Assign Memory Resources to Containers and Pods > Specify a memory request that is too big for your Nodes]
-  > Memory requests and limits are associated with Containers, but it is useful to think
-  > of a Pod as having a memory request and limit. The memory request for the Pod is the
-  > sum of the memory requests for all the Containers in the Pod. Likewise, the memory
-  > limit for the Pod is the sum of the limits of all the Containers in the Pod.
-  > Pod scheduling is based on requests. A Pod is scheduled to run on a Node only if the Node
-  > has enough available memory to satisfy the Pod's memory request.
-  > In this exercise, you create a Pod that has a memory request so big that it exceeds the
-  > capacity of any Node in your cluster. Here is the configuration file for a Pod that has one
-  > Container with a request for 1000 GiB of memory, which likely exceeds the capacity
-  > of any Node in your cluster.
-  > Example file `pods/resource/memory-request-limit-3.yaml`:
-  > ```yaml
-  > apiVersion: v1
-  > kind: Pod
-  > metadata:
-  >   name: memory-demo-3
-  >   namespace: mem-example
-  > spec:
-  >   containers:
-  >   - name: memory-demo-3-ctr
-  >     image: polinux/stress
-  >     resources:
-  >       requests:
-  >         memory: "1000Gi"
-  >       limits:
-  >         memory: "1000Gi"
-  >     command: ["stress"]
-  >     args: ["--vm", "1", "--vm-bytes", "150M", "--vm-hang", "1"]
-  > ```
-  > Create the Pod:
-  > ```shell
-  > kubectl apply -f https://k8s.io/examples/pods/resource/memory-request-limit-3.yaml --namespace=mem-example
-  > ```
-  > View the Pod status:
-  > ```shell
-  > kubectl get pod memory-demo-3 --namespace=mem-example
-  > ```
-  > The output shows that the Pod status is PENDING. That is, the Pod is not scheduled to run on any Node, and it will remain in the PENDING state indefinitely:
-  > ```
-  > kubectl get pod memory-demo-3 --namespace=mem-example
-  > NAME            READY     STATUS    RESTARTS   AGE
-  > memory-demo-3   0/1       Pending   0          25s
-  > ```
-  > View detailed information about the Pod, including events:
-  > ```shell
-  > kubectl describe pod memory-demo-3 --namespace=mem-example
-  > ```
-  > The output shows that the Container cannot be scheduled because of insufficient memory on the Nodes:
-  > ```
-  > Events:
-  >   ...  Reason            Message
-  >        ------            -------
-  >   ...  FailedScheduling  No nodes are available that match all of the following predicates:: Insufficient memory (3).
-  > ```
-
-*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): removed the undocumented recommendations
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-The excerpt confirms that scheduling requires enough available memory to satisfy the Pod's request, and shows FailedScheduling with Insufficient memory.
+
 
 ---
 
@@ -568,9 +260,20 @@ The excerpt confirms that scheduling requires enough available memory to satisfy
 
 **Question** (en, troubleshooting): My pod is stuck in ImagePullBackOff. What are the common causes?
 
-**Reference answer:** The image can't be pulled: usually a wrong image name or tag, or an image that isn't in the registry. `kubectl describe pod` shows the events.
+**Reference answer:** Kubernetes couldn't pull the container image, for reasons such as an invalid image name or pulling from a private registry without an `imagePullSecret`. It keeps retrying with an increasing back-off delay, up to 300 seconds.
 
 **Relevant documentation:**
+- `concepts/containers/images.md`, section: *Images > Updating images > ImagePullBackOff*
+  > [Images > Updating images > ImagePullBackOff]
+  > When a kubelet starts creating containers for a Pod using a container runtime,
+  > it might be possible the container is in Waiting
+  > state because of `ImagePullBackOff`.
+  > The status `ImagePullBackOff` means that a container could not start because Kubernetes
+  > could not pull a container image (for reasons such as invalid image name, or pulling
+  > from a private registry without `imagePullSecret`). The `BackOff` part indicates
+  > that Kubernetes will keep trying to pull the image, with an increasing back-off delay.
+  > Kubernetes raises the delay between each attempt until it reaches a compiled-in limit,
+  > which is 300 seconds (5 minutes).
 - `tasks/debug/debug-application/debug-pods.md`, section: *Debug Pods > Diagnosing the problem*
   > [Debug Pods > Diagnosing the problem]
   > The first step in troubleshooting is triage. What is the problem?
@@ -668,237 +371,44 @@ The excerpt confirms that scheduling requires enough available memory to satisfy
   > Services provide load balancing across a set of pods. There are several common problems that can make Services
   > not work … (section continues)
 
-*Drafting note:* golden v2 draft (2026-11-07)
+*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): added the ImagePullBackOff section; causes aligned with it
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [x] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The excerpt covers image-pull failures in the Waiting state, but does not explicitly document ImagePullBackOff or an incorrect tag. Add the relevant Images documentation for ImagePullBackOff, or narrow the question and answer to the generic image-pull failure described here.
-
----
-
-### `exec-shell`
-
-**Question** (en, command): How do I open a shell inside a running container?
-
-**Reference answer:** `kubectl exec --stdin --tty <pod> -- /bin/bash`; when the Pod has several containers, choose one with `--container` (`-c`).
-
-**Relevant documentation:**
-- `tasks/debug/debug-application/get-shell-running-container.md`, section: *Get a Shell to a Running Container > Getting a shell to a container*
-  > [Get a Shell to a Running Container > Getting a shell to a container]
-  > In this exercise, you create a Pod that has one container. The container
-  > runs the nginx image. Here is the configuration file for the Pod:
-  > Example file `application/shell-demo.yaml`:
-  > ```yaml
-  > apiVersion: v1
-  > kind: Pod
-  > metadata:
-  >   name: shell-demo
-  > spec:
-  >   volumes:
-  >   - name: shared-data
-  >     emptyDir: {}
-  >   containers:
-  >   - name: nginx
-  >     image: nginx
-  >     volumeMounts:
-  >     - name: shared-data
-  >       mountPath: /usr/share/nginx/html
-  >   hostNetwork: true
-  >   dnsPolicy: Default
-  > ```
-  > Create the Pod:
-  > ```shell
-  > kubectl apply -f https://k8s.io/examples/application/shell-demo.yaml
-  > ```
-  > Verify that the container is running:
-  > ```shell
-  > kubectl get pod shell-demo
-  > ```
-  > Get a shell to the running container:
-  > ```shell
-  > kubectl exec --stdin --tty shell-demo -- /bin/bash
-  > ```
-  > The double dash (`--`) separates the arguments you want to pass to the command from the kubectl arguments.
-  > In your shell, list the root directory:
-  > ```shell
-  > # Run this inside the container
-  > ls /
-  > ```
-  > In your shell, experiment with other commands. Here are
-  > some examples:
-  > In your shell, experiment with other commands. Here are
-  > some examples:
-  > ```shell
-  > # You can run these example commands inside the container
-  > ls /
-  > cat /proc/mounts
-  > cat /proc/1/maps
-  > apt-get update
-  > apt-get install -y tcpdump
-  > tcpdump
-  > apt-get install -y lsof
-  > lsof
-  > apt-get install -y procps
-  > ps aux
-  > ps aux | grep nginx
-  > ```
-- `tasks/debug/debug-application/get-shell-running-container.md`, section: *Get a Shell to a Running Container > Opening a shell when a Pod has more than one container*
-  > [Get a Shell to a Running Container > Opening a shell when a Pod has more than one container]
-  > If a Pod has more than one container, use `--container` or `-c` to
-  > specify a container in the `kubectl exec` command. For example,
-  > suppose you have a Pod named my-pod, and the Pod has two containers
-  > named _main-app_ and _helper-app_. The following command would open a
-  > shell to the _main-app_ container.
-  > ```shell
-  > kubectl exec -i -t my-pod --container main-app -- /bin/bash
-  > ```
-  > The short options `-i` and `-t` are the same as the long options `--stdin` and `--tty`
-  > ##
-  > * Read about kubectl exec
-
-*Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-Both the shell command and the --container / -c option for multi-container Pods are documented.
+
 
 ---
 
-### `port-forward`
+### `kubectl-top`
 
-**Question** (en, command): How do I reach a pod's port from my laptop without exposing it?
+**Question** (en, command): How do I see the current CPU and memory usage of my pods?
 
-**Reference answer:** `kubectl port-forward pods/<name> 28015:27017` forwards local port 28015 to port 27017 of the Pod; it also accepts `deployment/` and `service/` targets.
-
-**Relevant documentation:**
-- `tasks/access-application-cluster/port-forward-access-application-cluster.md`, section: *Use Port Forwarding to Access Applications in a Cluster > Forward a local port to a port on the Pod*
-  > [Use Port Forwarding to Access Applications in a Cluster > Forward a local port to a port on the Pod]
-  > 1. `kubectl port-forward` allows using resource name, such as a pod name, to select a matching pod to port forward to.
-  >    ```shell
-  >    # Change mongo-75f59d57f4-4nd6q to the name of the Pod
-  >    kubectl port-forward mongo-75f59d57f4-4nd6q 28015:27017
-  >    ```
-  >    which is the same as
-  >    ```shell
-  >    kubectl port-forward pods/mongo-75f59d57f4-4nd6q 28015:27017
-  >    ```
-  >    or
-  >    ```shell
-  >    kubectl port-forward deployment/mongo 28015:27017
-  >    ```
-  >    or
-  >    ```shell
-  >    kubectl port-forward replicaset/mongo-75f59d57f4 28015:27017
-  >    ```
-  >    or
-  >    ```shell
-  >    kubectl port-forward service/mongo 28015:27017
-  >    ```
-  >    Any of the above commands works. The output is similar to this:
-  >    ```
-  >    Forwarding from 127.0.0.1:28015 -> 27017
-  >    Forwarding from [::1]:28015 -> 27017
-  >    ```
-  >    `kubectl port-forward` does not return. To continue with the exercises, you will need to open another terminal.
-  > 2. Start the MongoDB command line interface:
-  >    ```shell
-  >    mongosh --port 28015
-  >    ```
-  > 3. At the MongoDB command line prompt, enter the `ping` command:
-  >    ```
-  >    db.runCommand( { ping: 1 } )
-  >    ```
-  >    A successful ping request returns:
-  >    ```
-  >    { ok: 1 }
-  >    ```
-  > [Use Port Forwarding to Access Applications in a Cluster > Forward a local port to a port on the Pod > Optionally let _kubectl_ choose the local port {#let-kubectl-choose-local-port}]
-  > If you don't need a specific local port, you can let `kubectl` choose and allocate
-  > the local port and thus relieve you from having to manage local port conflicts, with
-  > the slightly simpler syntax:
-  > ```shell
-  > kubectl port-forward deployment/mongo :27017
-  > ```
-  > The `kubectl` tool finds a local port number that is not in use (avoiding low ports numbers,
-  > because these might be used by other applications). The output is similar to:
-  > ```
-  > Forwarding from 127.0.0.1:63753 -> 27017
-  > Forwarding from [::1]:63753 -> 27017
-  > ```
-
-*Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The command, local-to-Pod port mapping, and Pod, Deployment, and Service targets are explicitly shown.
-
----
-
-### `logs-one-container`
-
-**Question** (en, command): How do I stream the logs of one specific container in a multi-container pod?
-
-**Reference answer:** `kubectl logs -f <pod> -c <container>`.
+**Reference answer:** `kubectl top pod`; it needs the Metrics Server running in the cluster.
 
 **Relevant documentation:**
-- `reference/kubectl/generated/kubectl_logs/_index.md`, section: *(whole document)*
-  > [kubectl logs]
+- `reference/kubectl/generated/kubectl_top/kubectl_top_pod.md`, section: *(whole document)*
+  > [kubectl top pod]
   > ##
-  > Print the logs for a container in a pod or specified resource. If the pod has only one container, the container name is optional.
+  > Display resource (CPU/memory) usage of pods.
+  >  The 'top pod' command allows you to see the resource consumption of pods.
+  >  Due to the metrics pipeline delay, they may be unavailable for a few minutes since pod creation.
   > ```
-  > kubectl logs [-f] [-p] (POD | TYPE/NAME) [-c CONTAINER]
+  > kubectl top pod [NAME | -l label]
   > ```
   > ##
-  > ##
   > ```
-  >   # Return snapshot logs from pod nginx with only one container
-  >   kubectl logs nginx
-  >   # Return snapshot logs from pod nginx, prefixing each line with the source pod and container name
-  >   kubectl logs nginx --prefix
-  >   # Return snapshot logs from pod nginx, limiting output to 500 bytes
-  >   kubectl logs nginx --limit-bytes=500
-  >   # Return snapshot logs from pod nginx, waiting up to 20 seconds for it to start running.
-  >   kubectl logs nginx --pod-running-timeout=20s
-  >   # Return snapshot logs from pod nginx with multi containers
-  >   kubectl logs nginx --all-containers=true
-  >   # Return snapshot logs from all pods in the deployment nginx
-  >   kubectl logs deployment/nginx --all-pods=true
-  >   # Return snapshot logs from all containers in pods defined by label app=nginx
-  >   kubectl logs -l app=nginx --all-containers=true
-  >   # Return snapshot logs from all pods defined by label app=nginx, limiting concurrent log requests to 10 pods
-  >   kubectl logs -l app=nginx --max-log-requests=10
-  >   # Return snapshot of previous terminated ruby container logs from pod web-1
-  >   kubectl logs -p -c ruby web-1
-  >   # Begin streaming the logs from pod nginx, continuing even if errors occur
-  >   kubectl logs nginx -f --ignore-errors=true
-  >   # Begin streaming the logs of the ruby container in pod web-1
-  >   kubectl logs -f -c ruby web-1
-  >   # Begin streaming the logs from all containers in pods defined by label app=nginx
-  >   kubectl logs -f -l app=nginx --all-containers=true
-  >   # Display only the most recent 20 lines of output in pod nginx
-  >   kubectl logs --tail=20 nginx
-  >   # Show all logs from pod nginx written in the last hour
-  >   kubectl logs --since=1h nginx
-  >   # Show all logs with timestamps from pod nginx starting from August 30, 2024, at 06:00:00 UTC
-  >   kubectl logs nginx --since-time=2024-08-30T06:00:00Z --timestamps=true
-  >   # Show logs from a kubelet with an expired serving certificate
-  >   kubectl logs --insecure-skip-tls-verify-backend nginx
-  >   # Return snapshot logs from first container of a job named hello
-  >   kubectl logs job/hello
-  >   # Return snapshot logs from container nginx-1 of a deployment named nginx
-  >   kubectl logs deployment/nginx -c nginx-1
+  >   # Show metrics for all pods in the default namespace
+  >   kubectl top pod
+  >   # Show metrics for all pods in the given namespace
+  >   kubectl top pod --namespace=NAMESPACE
+  >   # Show metrics for a given pod and its containers
+  >   kubectl top pod POD_NAME --containers
+  >   # Show metrics for the pods defined by label name=myLabel
+  >   kubectl top pod -l name=myLabel
   > ```
   > ##
   >    <table style="width: 100%; table-layout: fixed;">
@@ -907,83 +417,35 @@ The command, local-to-Pod port mapping, and Pod, Deployment, and Service targets
   > <col span="1" />
   > </colgroup>
   > <tbody>
-  >    <table style="width: 100%; table-layout: fixed;">
-  > <colgroup>
-  > <col span="1" style="width: 10px;" />
-  > <col span="1" />
-  > </colgroup>
-  > <tbody>
   > <tr>
-  > <td colspan="2">--all-containers</td>
+  > <td colspan="2">-A, --all-namespaces</td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Get all containers' logs in the pod(s).</p></td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.</p></td>
   > </tr>
   > <tr>
-  > <td colspan="2">--all-pods</td>
+  > <td colspan="2">--containers</td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Get logs from all pod(s). Sets prefix to true.</p></td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If present, print usage of containers within a pod.</p></td>
   > </tr>
   > <tr>
-  > <td colspan="2">-c, --container string</td>
+  > <td colspan="2">--field-selector string</td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Print the logs of this container</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">-f, --follow</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Specify if the logs should be streamed.</p></td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.</p></td>
   > </tr>
   > <tr>
   > <td colspan="2">-h, --help</td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>help for logs</p></td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>help for pod</p></td>
   > </tr>
   > <tr>
-  > <td colspan="2">--ignore-errors</td>
+  > <td colspan="2">--no-headers</td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If watching / following pod logs, allow for any errors that occur to be non-fatal</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--insecure-skip-tls-verify-backend</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Skip verifying the identity of the kubelet that logs are requested from.  In theory, an attacker could provide invalid log content back. You might want to use this if your kubelet serving certificates have expired.</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--limit-bytes int</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Maximum bytes of logs to return. Defaults to no limit.</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--max-log-requests int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default: 5</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Specify maximum number of concurrent logs to follow when using by a selector. Defaults to 5.</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--pod-running-timeout duration&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default: 20s</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--prefix</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Prefix each log line with the log source (pod name and container name)</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">-p, --previous</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If true, print the logs for the previous instance of the container in a pod if it exists.</p></td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If present, print output without headers.</p></td>
   > </tr>
   > <tr>
   > <td colspan="2">-l, --selector string</td>
@@ -992,106 +454,26 @@ The command, local-to-Pod port mapping, and Pod, Deployment, and Service targets
   > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.</p></td>
   > </tr>
   > <tr>
-  > <td colspan="2">--since duration</td>
+  > <td colspan="2">--sort-by string</td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Only return logs newer than a relative duration like 5s, 2m, or 3h. Defaults to all logs. Only one of since-time / since may be used.</p></td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If non-empty, sort pods list using specified field. The field can be either 'cpu' or 'memory'.</p></td>
   > </tr>
   > <tr>
-  > <td colspan="2">--since-time string</td>
+  > <td colspan="2">--sum</td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Only … (section continues)
-
-*Drafting note:* golden v2 draft (2026-11-07)
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The excerpt explicitly demonstrates kubectl logs -f -c ruby web-1 and documents both flags.
-
----
-
-### `kubectl-explain`
-
-**Question** (en, command): How can I read the documentation of a field like spec.containers from the command line?
-
-**Reference answer:** `kubectl explain pods.spec.containers` (add `--recursive` to see nested fields).
-
-**Relevant documentation:**
-- `reference/kubectl/generated/kubectl_explain/_index.md`, section: *(whole document)*
-  > [kubectl explain]
-  > ##
-  > Describe fields and structure of various resources.
-  >  This command describes the fields associated with each supported API resource. Fields are identified via a simple JSONPath identifier:
-  >         &lt;type&gt;.&lt;fieldName&gt;[.&lt;fieldName&gt;]
-  >  Information about each field is retrieved from the server in OpenAPI format.
-  > Use "kubectl api-resources" for a complete list of supported resources.
-  > ```
-  > kubectl explain TYPE [--recursive=FALSE|TRUE] [--api-version=api-version-group] [-o|--output=plaintext|plaintext-openapiv2]
-  > ```
-  > ##
-  > ```
-  >   # Get the documentation of the resource and its fields
-  >   kubectl explain pods
-  >   # Get all the fields in the resource
-  >   kubectl explain pods --recursive
-  >   # Get the explanation for deployment in supported api versions
-  >   kubectl explain deployments --api-version=apps/v1
-  >   # Get the documentation of a specific field of a resource
-  >   kubectl explain pods.spec.containers
-  >   # Get the documentation of resources in different format
-  >   kubectl explain deployment --output=plaintext-openapiv2
-  > ```
-  > ##
-  >    <table style="width: 100%; table-layout: fixed;">
-  > <colgroup>
-  > <col span="1" style="width: 10px;" />
-  > <col span="1" />
-  > </colgroup>
-  > <tbody>
-  >    <table style="width: 100%; table-layout: fixed;">
-  > <colgroup>
-  > <col span="1" style="width: 10px;" />
-  > <col span="1" />
-  > </colgroup>
-  > <tbody>
-  > <tr>
-  > <td colspan="2">--api-version string</td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Print the sum of the resource usage</p></td>
   > </tr>
   > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Get different explanations for particular API version (API group/version)</p></td>
+  > <td colspan="2">--use-protocol-buffers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default: true</td>
   > </tr>
   > <tr>
-  > <td colspan="2">-h, --help</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>help for explain</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--output string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default: "plaintext"</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Format in which to render the schema (plaintext, plaintext-openapiv2)</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--recursive</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Print the fields of fields (Currently only 1 level deep)</p></td>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Enables using protocol-buffers to access Metrics API.</p></td>
   > </tr>
   > </tbody>
   > </table>
   > ##
-  >    <table style="width: 100%; table-layout: fixed;">
-  > <colgroup>
-  > <col span="1" style="width: 10px;" />
-  > <col span="1" />
-  > </colgroup>
-  > <tbody>
   >    <table style="width: 100%; table-layout: fixed;">
   > <colgroup>
   > <col span="1" style="width: 10px;" />
@@ -1141,16 +523,16 @@ The excerpt explicitly demonstrates kubectl logs -f -c ruby web-1 and documents 
   > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Path to a client key file for TLS</p></td>
   > </tr>
   > <tr>
+  > <td colspan="2">--client-key string</td>
+  > </tr>
+  > <tr>
+  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Path to a client key file for TLS</p></td>
+  > </tr>
+  > <tr>
   > <td colspan="2">--cluster string</td>
   > </tr>
   > <tr>
   > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>The name of the kubeconfig cluster to use</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--context string</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>The name of the kubeconfig context to use</p></td>
   > </tr>
   > <tr>
   > <td colspan="2">--context string</td>
@@ -1177,45 +559,7 @@ The excerpt explicitly demonstrates kubectl logs -f -c ruby web-1 and documents 
   > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If true, opt-out of response compression for all requests to the server</p></td>
   > </tr>
   > <tr>
-  > <td colspan="2">--insecure-skip-tls-verify</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--kubeconfig string</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Path to the kubeconfig file to use for CLI requests.</p></td>
-  > </tr>
-  > <tr>
-  > <td colspan="2">--match-server-version</td>
-  > </tr>
-  > <tr>
-  > <td></td><td style="line-height: 130%; word-wrap: break-word;"><p>Require server version to match client version</p></td>
-  > </tr>
-  > <tr>
   > <td … (section continues)
-
-*Drafting note:* golden v2 draft (2026-11-07)
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The field-specific command and --recursive option are shown. Note that the excerpt limits recursive output to one level deep.
-
----
-
-### `kubectl-top`
-
-**Question** (en, command): How do I see the current CPU and memory usage of my pods?
-
-**Reference answer:** `kubectl top pod`; it needs the Metrics Server running in the cluster.
-
-**Relevant documentation:**
 - `reference/kubectl/generated/kubectl_top/_index.md`, section: *(whole document)*
   > [kubectl top]
   > ##
@@ -1388,15 +732,15 @@ The field-specific command and --recursive option are shown. Note that the excer
   > <tr>
   > <td colspan="2">--storage-driver-buffer-duration duration&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default: … (section continues)
 
-*Drafting note:* golden v2 draft (2026-11-07)
+*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): added the kubectl top pod page
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [x] ✏️ Needs changes (say what under Notes)
+- [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-The excerpt confirms CPU/memory usage for Pods and the Metrics Server requirement, but does not show the specific kubectl top pod syntax. Add the kubectl top pod documentation excerpt.
+
 
 ---
 
@@ -1404,7 +748,7 @@ The excerpt confirms CPU/memory usage for Pods and the Metrics Server requiremen
 
 **Question** (en, command): How do I switch kubectl between two clusters?
 
-**Reference answer:** Define clusters, users and contexts in your kubeconfig, then switch with `kubectl config use-context <context>`.
+**Reference answer:** Define clusters, users and contexts in a kubeconfig file, then switch with `kubectl config use-context <context>` (the documented example: `kubectl config --kubeconfig=config-demo use-context dev-frontend`).
 
 **Relevant documentation:**
 - `tasks/access-application-cluster/configure-access-multiple-clusters.md`, section: *Configure Access to Multiple Clusters > Define clusters, users, and contexts*
@@ -1561,305 +905,15 @@ The excerpt confirms CPU/memory usage for Pods and the Metrics Server requiremen
   >   user:
   >  … (section continues)
 
-*Drafting note:* golden v2 draft (2026-11-07)
+*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): aligned with the documented command
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [x] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The example uses kubectl config --kubeconfig=config-demo use-context dev-frontend. Align the answer with that command, or add documentation supporting use of the default kubeconfig without the explicit --kubeconfig option.
-
----
-
-### `rollout-status`
-
-**Question** (en, command): How do I check whether a Deployment rollout has finished?
-
-**Reference answer:** `kubectl rollout status deployment/<name>`.
-
-**Relevant documentation:**
-- `concepts/workloads/controllers/deployment.md`, section: *Deployments > Updating a Deployment*
-  > [Deployments > Updating a Deployment]
-  > A Deployment's rollout is triggered if and only if the Deployment's Pod template (that is, `.spec.template`)
-  > is changed, for example if the labels or container images of the template are updated. Other updates, such as scaling the Deployment, do not trigger a rollout.
-  > Follow the steps given below to update your Deployment:
-  > 1. Let's update the nginx Pods to use the `nginx:1.16.1` image instead of the `nginx:1.14.2` image.
-  >    ```shell
-  >    kubectl set image deployment.v1.apps/nginx-deployment nginx=nginx:1.16.1
-  >    ```
-  >    or use the following command:
-  >    ```shell
-  >    kubectl set image deployment/nginx-deployment nginx=nginx:1.16.1
-  >    ```
-  >    where `deployment/nginx-deployment` indicates the Deployment,
-  >    `nginx` indicates the Container the update will take place and
-  >    `nginx:1.16.1` indicates the new image and its tag.
-  >    The output is similar to:
-  >    ```
-  >    deployment.apps/nginx-deployment image updated
-  >    ```
-  >    Alternatively, you can `edit` the Deployment and change `.spec.template.spec.containers[0].image` from `nginx:1.14.2` to `nginx:1.16.1`:
-  >    ```shell
-  >    kubectl edit deployment/nginx-deployment
-  >    ```
-  >    The output is similar to:
-  >    The output is similar to:
-  >    ```
-  >    deployment.apps/nginx-deployment edited
-  >    ```
-  > 2. To see the rollout status, run:
-  >    ```shell
-  >    kubectl rollout status deployment/nginx-deployment
-  >    ```
-  >    The output is similar to this:
-  >    ```
-  >    Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
-  >    ```
-  >    or
-  >    ```
-  >    deployment "nginx-deployment" successfully rolled out
-  >    ```
-  > Get more details on your updated Deployment:
-  > * After the rollout succeeds, you can view the Deployment by running `kubectl get deployments`.
-  >   The output is similar to this:
-  >   ```
-  >   NAME               READY   UP-TO-DATE   AVAILABLE   AGE
-  >   nginx-deployment   3/3     3            3           36s
-  >   ```
-  > * Run `kubectl get rs` to see that the Deployment updated the Pods by creating a new ReplicaSet and scaling it
-  > up to 3 replicas, as well as scaling down the old ReplicaSet to 0 replicas.
-  >   ```shell
-  >   kubectl get rs
-  >   ```
-  >   The output is similar to this:
-  >   ```
-  >   NAME                          DESIRED   CURRENT   READY   AGE
-  >   nginx-deployment-1564180365   3         3         3       6s
-  >   nginx-deployment-2035384211   0         0         0       36s
-  >   ```
-  > * Running `get pods` should now show only the new Pods:
-  >   ```shell
-  >   kubectl get pods
-  >   ```
-  >   The output is similar to this:
-  >   ```
-  >   NAME                                READY     STATUS    RESTARTS   AGE
-  >   nginx-deployment-1564180365-khku8   1/1       Running   0          14s
-  >   nginx-deployment-1564180365-nacti   1/1       Running   0          14s
-  >   nginx-deployment-1564180365-z9gth   1/1       Running   0          14s
-  >   ```
-  >   Next time you want to update these Pods, you only need to update the Deployment's Pod template again.
-  >   Deployment ensures that only a certain number of Pods are down while they are being updated. By default,
-  >   it ensures that at least 75% of the desired number of Pods are up (25% max unavailable).
-  >   Deployment also ensures that only a certain number of Pods are created above the desired number of Pods.
-  >   By default, it ensures that at most 125% of the desired number of Pods are up (25% max surge).
-  >   For example, if you look at the above Deployment closely, you will see that it first creates a new Pod,
-  >   then deletes an old Pod, and creates another new one. It does not kill old Pods until a sufficient number of
-  >   new Pods have come up, and does not create new Pods until a sufficient number of old Pods have been killed.
-  >   It makes sure that at least 3 Pods are available and that at max 4 Pods in total are available. In case of
-  >   a Deployment with 4 replicas, the number of Pods would be between 3 and 5.
-  > * Get details of your Deployment:
-  >   ```shell
-  >   kubectl describe deployments
-  >   ```
-  >   The output is similar to this:
-  >   ```
-  >   Name:                   nginx-deployment
-  >   Namespace:              default
-  >   CreationTimestamp:      Thu, 30 Nov 2017 10:56:25 +0000
-  >   Labels:                 app=nginx
-  >   Annotations:            deployment.kubernetes.io/revision=2
-  >   Selector:               app=nginx
-  >   Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
-  >   StrategyType:           RollingUpdate
-  >   MinReadySeconds:        0
-  >   RollingUpdateStrategy:  25% max unavailable, 25% max surge
-  >   Pod Template:
-  >     Labels:  app=nginx
-  >      Containers:
-  >       nginx:
-  >         Image:        nginx:1.16.1
-  >         Port:         80/TCP
-  >         Environment:  <none>
-  >         Mounts:       <none>
-  >       Volumes:        <none>
-  >     Conditions:
-  >       Type           Status  Reason
-  >       ----           ------  ------
-  >       Available      True    MinimumReplicasAvailable
-  >       Progressing    True    NewReplicaSetAvailable
-  >     OldReplicaSets:  <none>
-  >     NewReplicaSet:   nginx-deployment-1564180365 (3/3 replicas created)
-  >     Events:
-  >       Type    Reason             Age   From                   Message
-  >       ----    ------             ----  ----                   -------
-  >       Normal  ScalingReplicaSet  2m    deployment-controller  Scaled up replica set nginx-deployment-2035384211 to 3
-  >       Normal  ScalingReplicaSet  24s   deployment-controller  Scaled up replica set nginx-deployment-1564180365 to 1
-  >       Normal  ScalingReplicaSet  22s   deployment-controller  Scaled down replica set nginx-deployment-2035384211 to 2
-  >       Normal  ScalingReplicaSet  22s   deployment-controller  Scaled up replica set nginx-deployment-1564180365 to 2
-  >       Normal  ScalingReplicaSet  19s   deployment-controller  Scaled down replica set nginx-deployment-2035384211 to 1
-  >       Normal  ScalingReplicaSet  19s   deployment-controller  Scaled up replica set nginx-deployment-1564180365 to 3
-  >       Normal  ScalingReplicaSet  14s   deployment-controller  Scaled down replica set nginx-deployment-2035384211 to 0
-  >   ```
-  >   Here you see that when you first created the Deployment, it created a … (section continues)
-- `concepts/workloads/controllers/deployment.md`, section: *Deployments > Deployment status*
-  > [Deployments > Deployment status]
-  > A Deployment enters various states during its lifecycle. It can be progressing while
-  > rolling out a new ReplicaSet, it can be complete, or it can fail to progress.
-  > [Deployments > Deployment status > Progressing Deployment]
-  > Kubernetes marks a Deployment as _progressing_ when one of the following tasks is performed:
-  > * The Deployment creates a new ReplicaSet.
-  > * The Deployment is scaling up its newest ReplicaSet.
-  > * The Deployment is scaling down its older ReplicaSet(s).
-  > * New Pods become ready or available (ready for at least MinReadySeconds).
-  > When the rollout becomes “progressing”, the Deployment controller adds a condition with the following
-  > attributes to the Deployment's `.status.conditions`:
-  > * `type: Progressing`
-  > * `status: "True"`
-  > * `reason: NewReplicaSetCreated` | `reason: FoundNewReplicaSet` | `reason: ReplicaSetUpdated`
-  > You can monitor the progress for a Deployment by using `kubectl rollout status`.
-  > [Deployments > Deployment status > Complete Deployment]
-  > Kubernetes marks a Deployment as _complete_ when it has the following characteristics:
-  > * All of the replicas associated with the Deployment have been updated to the latest version you've specified, meaning any
-  > updates you've requested have been completed.
-  > * All of the replicas associated with the Deployment are available.
-  > * No old replicas for the Deployment are running.
-  > When the rollout becomes “complete”, the Deployment controller sets a condition with the following
-  > attributes to the Deployment's `.status.conditions`:
-  > * `type: Progressing`
-  > * `status: "True"`
-  > * `reason: NewReplicaSetAvailable`
-  > This `Progressing` condition will retain a status value of `"True"` until a new rollout
-  > is initiated. The condition holds even when availability of replicas changes (which
-  > does instead affect the `Available` condition).
-  > You can check if a Deployment has completed by using `kubectl rollout status`. If the rollout completed
-  > successfully, `kubectl rollout status` returns a zero exit code.
-  > You can check if a Deployment has completed by using `kubectl rollout status`. If the rollout completed
-  > successfully, `kubectl rollout status` returns a zero exit code.
-  > ```shell
-  > kubectl rollout status deployment/nginx-deployment
-  > ```
-  > The output is similar to this:
-  > ```
-  > Waiting for rollout to finish: 2 of 3 updated replicas are available...
-  > deployment "nginx-deployment" successfully rolled out
-  > ```
-  > and the exit status from `kubectl rollout` is 0 (success):
-  > ```shell
-  > echo $?
-  > ```
-  > ```
-  > 0
-  > ```
-  > [Deployments > Deployment status > Failed Deployment]
-  > Your Deployment may get stuck trying to deploy its newest ReplicaSet without ever completing. This can occur
-  > due to some of the following factors:
-  > * Insufficient quota
-  > * Readiness probe failures
-  > * Image pull errors
-  > * Insufficient permissions
-  > * Limit ranges
-  > * Application runtime misconfiguration
-  > One way you can detect this condition is to specify a deadline parameter in your Deployment spec:
-  > (`.spec.progressDeadlineSeconds`). `.spec.progressDeadlineSeconds` denotes the
-  > number of seconds the Deployment controller waits before indicating (in the Deployment status) that the
-  > Deployment progress has stalled.
-  > The following `kubectl` command sets the spec with `progressDeadlineSeconds` to make the controller report
-  > lack of progress of a rollout for a Deployment after 10 minutes:
-  > ```shell
-  > kubectl patch deployment/nginx-deployment -p '{"spec":{"progressDeadlineSeconds":600}}'
-  > ```
-  > The output is similar to this:
-  > ```
-  > deployment.apps/nginx-deployment patched
-  > ```
-  > Once the deadline has been exceeded, the Deployment controller adds a DeploymentCondition with the following
-  > attributes to the Deployment's `.status.conditions`:
-  > * `type: Progressing`
-  > * `status: "False"`
-  > * `reason: ProgressDeadlineExceeded`
-  > This condition can also fail early and is then set to status value of `"False"` due to reasons as `ReplicaSetCreateError`.
-  > Also, the deadline is not taken into account anymore once the Deployment rollout completes.
-  > See the Kubernetes API conventions for more information on status conditions.
-  > Kubernetes takes no action on a stalled Deployment other than to report a status condition with
-  > `reason: ProgressDeadlineExceeded`. Higher level orchestrators can take advantage of it and act accordingly, for
-  > example, rollback the Deployment to its previous version.
-  > If you pause a Deployment rollout, Kubernetes does not check progress against your specified deadline.
-  > You can safely pause a Deployment rollout in the middle of a rollout and resume without triggering
-  > the condition for exceeding the deadline.
-  > You may experience transient errors with your Deployments, either due to a low timeout that you have set or
-  > due to any other kind of error that can be treated as transient. For example, let's suppose you have
-  > insufficient quota. If you describe the Deployment you will notice the following section:
-  > ```shell
-  > kubectl describe deployment nginx-deployment
-  > ```
-  > The output is similar to this:
-  > ```
-  > <...>
-  > Conditions:
-  >   Type            Status  Reason
-  >   ----            ------  ------
-  >   Available       True    MinimumReplicasAvailable
-  >   Progressing     True    ReplicaSetUpdated
-  >   ReplicaFailure  True    FailedCreate
-  > <...>
-  > ```
-  > If you run `kubectl get deployment nginx-deployment -o yaml`, the Deployment status is similar to this:
-  > If you run `kubectl get deployment nginx-deployment -o yaml`, the Deployment status is similar to this:
-  > ```
-  > status:
-  >   availableReplicas: 2
-  >   conditions:
-  >   - lastTransitionTime: 2016-10-04T12:25:39Z
-  >     lastUpdateTime: 2016-10-04T12:25:39Z
-  >     message: Replica set "nginx-deployment-4262182780" is progressing.
-  >     reason: ReplicaSetUpdated
-  >     status: "True"
-  >     type: Progressing
-  >   - lastTransitionTime: 2016-10-04T12:25:42Z
-  >     lastUpdateTime: 2016-10-04T12:25:42Z
-  >     message: Deployment has minimum availability.
-  >     reason: MinimumReplicasAvailable
-  >     status: "True"
-  >     type: Available
-  >   - lastTransitionTime: 2016-10-04T12:25:39Z
-  >     lastUpdateTime: 2016-10-04T12:25:39Z
-  >     message: 'Error … (section continues)
-
-*Drafting note:* golden v2 draft (2026-11-07)
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-The command and its use to monitor and confirm Deployment rollout completion are explicitly documented.
 
----
-
-### `kubectl-diff`
-
-**Question** (en, command): How can I preview what applying a manifest would change in the cluster?
-
-**Reference answer:** `kubectl diff -f ./my-manifest.yaml`.
-
-**Relevant documentation:**
-- `reference/kubectl/quick-reference.md`, section: *kubectl Quick Reference > Compares the current state of the cluster against the state that the cluster would be in if the manifest was applied.*
-  > [kubectl Quick Reference > Compares the current state of the cluster against the state that the cluster would be in if the manifest was applied.]
-  > kubectl diff -f ./my-manifest.yaml
-
-*Drafting note:* golden v2 draft (2026-11-07)
-
-**Decision** (tick one):
-- [x] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
-- [ ] ❌ Reject
-
-**Notes:**
-The quick reference explicitly provides kubectl diff -f ./my-manifest.yaml for this purpose.
 
 ---
 
@@ -1867,7 +921,7 @@ The quick reference explicitly provides kubectl diff -f ./my-manifest.yaml for t
 
 **Question** (en, concept): Should I create ReplicaSets directly or use Deployments?
 
-**Reference answer:** Use Deployments: they manage ReplicaSets and add declarative rolling updates. Create a ReplicaSet directly only if you need custom update orchestration or no updates at all.
+**Reference answer:** Use Deployments: a Deployment manages ReplicaSets and provides declarative updates to Pods. Create a ReplicaSet directly only if you need custom update orchestration or don't need updates at all.
 
 **Relevant documentation:**
 - `concepts/workloads/controllers/replicaset.md`, section: *ReplicaSet > When to use a ReplicaSet*
@@ -1880,14 +934,717 @@ The quick reference explicitly provides kubectl diff -f ./my-manifest.yaml for t
   > This actually means that you may never need to manipulate ReplicaSet objects:
   > use a Deployment instead, and define your application in the spec section.
 
+*Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): 'rolling updates' replaced with the documented 'declarative updates to Pods'
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `job-completions`
+
+**Question** (en, task): How do I run a batch job that must succeed 5 times, with 2 pods running at a time?
+
+**Reference answer:** Set `completions: 5` and `parallelism: 2` in the Job spec.
+
+**Relevant documentation:**
+- `concepts/workloads/controllers/job.md`, section: *Jobs > Writing a Job spec*
+  > [Jobs > Writing a Job spec]
+  > As with all other Kubernetes config, a Job needs `apiVersion`, `kind`, and `metadata` fields.
+  > When the control plane creates new Pods for a Job, the `.metadata.name` of the
+  > Job is part of the basis for naming those Pods. The name of a Job must be a valid
+  > DNS subdomain
+  > value, but this can produce unexpected results for the Pod hostnames. For best compatibility,
+  > the name should follow the more restrictive rules for a
+  > DNS label.
+  > Even when the name is a DNS subdomain, the name must be no longer than 63
+  > characters.
+  > A Job also needs a `.spec` section.
+  > [Jobs > Writing a Job spec > Job Labels]
+  > Job labels will have `batch.kubernetes.io/` prefix for `job-name` and `controller-uid`.
+  > [Jobs > Writing a Job spec > Pod Template]
+  > The `.spec.template` is the only required field of the `.spec`.
+  > The `.spec.template` is a pod template.
+  > It has exactly the same schema as a Pod,
+  > except it is nested and does not have an `apiVersion` or `kind`.
+  > In addition to required fields for a Pod, a pod template in a Job must specify appropriate
+  > labels (see pod selector) and an appropriate restart policy.
+  > Only a `RestartPolicy`
+  > equal to `Never` or `OnFailure` is allowed.
+  > [Jobs > Writing a Job spec > Pod selector]
+  > The `.spec.selector` field is optional. In almost all cases you should not specify it.
+  > See section specifying your own pod selector.
+  > [Jobs > Writing a Job spec > Parallel execution for Jobs {#parallel-jobs}]
+  > There are three main types of task suitable to run as a Job:
+  > 1. Non-parallel Jobs
+  >    - normally, only one Pod is started, unless the Pod fails.
+  >    - the Job is complete as soon as its Pod terminates successfully.
+  > 1. Parallel Jobs with a *fixed completion count*:
+  >    - specify a non-zero positive value for `.spec.completions`.
+  >    - the Job represents the overall task, and is complete when there are `.spec.completions` successful Pods.
+  >    - when using `.spec.completionMode="Indexed"`, each Pod gets a different index in the range 0 to `.spec.completions-1`.
+  > 1. Parallel Jobs with a *work queue*:
+  >    - do not specify `.spec.completions`, default to `.spec.parallelism`.
+  >    - the Pods must coordinate amongst themselves or an external service to determine
+  >      what each should work on. For example, a Pod might fetch a batch of up to N items from the work queue.
+  >    - each Pod is independently capable of determining whether or not all its peers are done,
+  >      and thus that the entire Job is done.
+  >    - when _any_ Pod from the Job terminates with success, no new Pods are created.
+  >    - once at least one Pod has terminated with success and all Pods are terminated,
+  >      then the Job is completed with success.
+  >    - once any Pod has exited with success, no other Pod should still be doing any work
+  >      for this task or writing any output. They should all be in the process of exiting.
+  > For a _non-parallel_ Job, you can leave both `.spec.completions` and `.spec.parallelism` unset.
+  > When both are unset, both are defaulted to 1.
+  > For a _fixed completion count_ Job, you should set `.spec.completions` to the number of completions needed.
+  > You can set `.spec.parallelism`, or leave it unset and it will default to 1.
+  > For a _work queue_ Job, you must leave `.spec.completions` unset, and set `.spec.parallelism` to
+  > a non-negative integer.
+  > For more information about how to make use of the different types of job,
+  > see the job patterns section.
+  > [Jobs > Writing a Job spec > Parallel execution for Jobs {#parallel-jobs} > Controlling parallelism]
+  > The requested parallelism (`.spec.parallelism`) can be set to any non-negative value.
+  > If it is unspecified, it defaults to 1.
+  > If it is specified as 0, then the Job is effectively paused until it is increased.
+  > Actual parallelism (number of pods running at any instant) may be more or less than requested
+  > parallelism, for a variety of reasons:
+  > - For _fixed completion count_ Jobs, the actual number of pods running in parallel will not exceed the number of
+  >   remaining completions. Higher values of `.spec.parallelism` are effectively ignored.
+  > - For _work queue_ Jobs, no new Pods are started after any Pod has succeeded -- remaining Pods are allowed to complete, however.
+  > - If the Job  has not had time to react.
+  > - If the Job controller failed to create Pods for any reason (lack of `ResourceQuota`, lack of permission, etc.),
+  >   then there may be fewer pods than requested.
+  > - The Job controller may throttle new Pod creation due to excessive previous pod failures in the same Job.
+  > - When a Pod is gracefully shut down, it takes time to stop.
+  > [Jobs > Writing a Job spec > Completion mode]
+  > Jobs with _fixed completion count_ - that is, jobs that have non null
+  > `.spec.completions` - can have a completion mode that is specified in `.spec.completionMode`:
+  > - `NonIndexed` (default): the Job is considered complete when there have been
+  >   `.spec.completions` successfully completed Pods. In other words, each Pod
+  >   completion is homologous to each other. Note that Jobs that have null
+  >   `.spec.completions` are implicitly `NonIndexed`.
+  > - `Indexed`: the Pods of a Job get an associated completion index from 0 to
+  >   `.spec.completions-1`. The index is available through four mechanisms:
+  >   - The Pod annotation `batch.kubernetes.io/job-completion-index`.
+  >   - The Pod label `batch.kubernetes.io/job-completion-index` (for v1.28 and later). Note
+  >     the feature gate `PodIndexLabel` must be enabled to use this label, and it is enabled
+  >     by default.
+  >   - As part of the Pod hostname, following the pattern `$(job-name)-$(index)`.
+  >     When you use an Indexed Job in combination with a
+  >     , Pods within the Job can use
+  >     the deterministic hostnames to address each other via DNS. For more information about
+  >     how to configure this, see Job with Pod-to-Pod Communication.
+  >   - From the containerized task, in the environment variable `JOB_COMPLETION_INDEX`.
+  >   The Job is considered complete when there is one successfully completed Pod
+  >   for each index. For more information about how to use this mode, see
+  >   Indexed Job for … (section continues)
+
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [x] ✏️ Needs changes (say what under Notes)
+- [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-The excerpt supports “declarative updates to Pods,” but does not explicitly say “rolling updates.” Replace that phrase with “declarative updates to Pods,” or add a Deployment update-strategy excerpt to support the rolling-update wording.
+
+
+---
+
+### `job-ttl`
+
+**Question** (en, task): How do I have finished Jobs deleted automatically?
+
+**Reference answer:** Set `ttlSecondsAfterFinished` on the Job; the TTL controller deletes it (and its Pods) that many seconds after it finishes.
+
+**Relevant documentation:**
+- `concepts/workloads/controllers/job.md`, section: *Jobs > Clean up finished jobs automatically*
+  > [Jobs > Clean up finished jobs automatically]
+  > Finished Jobs are usually no longer needed in the system. Keeping them around in
+  > the system will put pressure on the API server. If the Jobs are managed directly
+  > by a higher level controller, such as
+  > CronJobs, the Jobs can be
+  > cleaned up by CronJobs based on the specified capacity-based cleanup policy.
+  > [Jobs > Clean up finished jobs automatically > TTL mechanism for finished Jobs]
+  > Another way to clean up finished Jobs (either `Complete` or `Failed`)
+  > automatically is to use a TTL mechanism provided by a
+  > TTL controller for
+  > finished resources, by specifying the `.spec.ttlSecondsAfterFinished` field of
+  > the Job.
+  > When the TTL controller cleans up the Job, it will delete the Job cascadingly,
+  > i.e. delete its dependent objects, such as Pods, together with the Job. Note
+  > that when the Job is deleted, its lifecycle guarantees, such as finalizers, will
+  > be honored.
+  > For example:
+  > ```yaml
+  > apiVersion: batch/v1
+  > kind: Job
+  > metadata:
+  >   name: pi-with-ttl
+  > spec:
+  >   ttlSecondsAfterFinished: 100
+  >   template:
+  >     spec:
+  >       containers:
+  >       - name: pi
+  >         image: perl:5.34.0
+  >         command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+  >       restartPolicy: Never
+  > ```
+  > The Job `pi-with-ttl` will be eligible to be automatically deleted, `100`
+  > seconds after it finishes.
+  > If the field is set to `0`, the Job will be eligible to be automatically deleted
+  > immediately after it finishes. If the field is unset, this Job won't be cleaned
+  > up by the TTL controller after it finishes.
+  > It is recommended to set `ttlSecondsAfterFinished` field because unmanaged jobs
+  > (Jobs that you created directly, and not indirectly through other workload APIs
+  > such as CronJob) have a default deletion
+  > policy of `orphanDependents` causing Pods created by an unmanaged Job to be left around
+  > after that Job is fully deleted.
+  > Even though the control plane eventually
+  > garbage collects
+  > the Pods from a deleted Job after they either fail or complete, sometimes those
+  > lingering pods may cause cluster performance degradation or in worst case cause the
+  > cluster to go offline due to this degradation.
+  > You can use LimitRanges and
+  > ResourceQuotas to place a
+  > cap on the amount of resources that a particular namespace can
+  > consume.
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `default-storageclass`
+
+**Question** (en, concept): What happens when a PersistentVolumeClaim doesn't name a storage class?
+
+**Reference answer:** If the cluster has a default StorageClass, it's used to dynamically provision a volume for the claim.
+
+**Relevant documentation:**
+- `concepts/storage/storage-classes.md`, section: *Storage Classes > Default StorageClass*
+  > [Storage Classes > Default StorageClass]
+  > You can mark a StorageClass as the default for your cluster.
+  > For instructions on setting the default StorageClass, see
+  > Change the default StorageClass.
+  > When a PVC does not specify a `storageClassName`, the default StorageClass is
+  > used.
+  > If you set the
+  > `storageclass.kubernetes.io/is-default-class`
+  > annotation to true on more than one StorageClass in your cluster, and you then
+  > create a PersistentVolumeClaim with no `storageClassName` set, Kubernetes
+  > uses the most recently created default StorageClass.
+  > You should try to only have one StorageClass in your cluster that is
+  > marked as the default. The reason that Kubernetes allows you to have
+  > multiple default StorageClasses is to allow for seamless migration.
+  > You can create a PersistentVolumeClaim without specifying a `storageClassName`
+  > for the new PVC, and you can do so even when no default StorageClass exists
+  > in your cluster. In this case, the new PVC creates as you defined it, and the
+  > `storageClassName` of that PVC remains unset until a default becomes available.
+  > You can have a cluster without any default StorageClass. If you don't mark any
+  > StorageClass as default (and one hasn't been set for you by, for example, a cloud provider),
+  > then Kubernetes cannot apply that defaulting for PersistentVolumeClaims that need
+  > it.
+  > If or when a default StorageClass becomes available, the control plane identifies any
+  > existing PVCs without `storageClassName`. For the PVCs that either have an empty
+  > value for `storageClassName` or do not have this key, the control plane then
+  > updates those PVCs to set `storageClassName` to match the new default StorageClass.
+  > If you have an existing PVC where the `storageClassName` is `""`, and you configure
+  > a default StorageClass, then this PVC will not get updated.
+  > In order to keep binding to PVs with `storageClassName` set to `""`
+  > (while a default StorageClass is present), you need to set the `storageClassName`
+  > of the associated PVC to `""`.
+- `concepts/storage/dynamic-provisioning.md`, section: *Dynamic Volume Provisioning > Defaulting Behavior*
+  > [Dynamic Volume Provisioning > Defaulting Behavior]
+  > Dynamic provisioning can be enabled on a cluster such that all claims are
+  > dynamically provisioned if no storage class is specified. A cluster administrator
+  > can enable this behavior by:
+  > - Marking one `StorageClass` object as *default*;
+  > - Making sure that the `DefaultStorageClass` admission controller
+  >   is enabled on the API server.
+  > An administrator can mark a specific `StorageClass` as default by adding the
+  > `storageclass.kubernetes.io/is-default-class` annotation to it.
+  > When a default `StorageClass` exists in a cluster and a user creates a
+  > `PersistentVolumeClaim` with `storageClassName` unspecified, the
+  > `DefaultStorageClass` admission controller automatically adds the
+  > `storageClassName` field pointing to the default storage class.
+  > Note that if you set the `storageclass.kubernetes.io/is-default-class`
+  > annotation to true on more than one StorageClass in your cluster, and you then
+  > create a `PersistentVolumeClaim` with no `storageClassName` set, Kubernetes
+  > uses the most recently created default StorageClass.
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `qos-classes`
+
+**Question** (en, concept): What are the Pod QoS classes and how does Kubernetes assign them?
+
+**Reference answer:** Guaranteed (every container has equal CPU and memory requests and limits), Burstable (at least one request or limit, but not Guaranteed) and BestEffort (no requests or limits). The class influences eviction order under node pressure.
+
+**Relevant documentation:**
+- `concepts/workloads/pods/pod-qos.md`, section: *Pod Quality of Service Classes > Quality of Service classes*
+  > [Pod Quality of Service Classes > Quality of Service classes]
+  > Kubernetes classifies the Pods that you run and allocates each Pod into a specific
+  > _quality of service (QoS) class_. Kubernetes uses that classification to influence how different
+  > pods are handled. Kubernetes does this classification based on the
+  > resource requests
+  > of the Containers in that Pod, along with
+  > how those requests relate to resource limits.
+  > This is known as Quality of Service
+  > (QoS) class. Kubernetes assigns every Pod a QoS class based on the resource requests
+  > and limits of its component Containers. QoS classes are used by Kubernetes to decide
+  > which Pods to evict from a Node experiencing
+  > Node Pressure. The possible
+  > QoS classes are `Guaranteed`, `Burstable`, and `BestEffort`. When a Node runs out of resources,
+  > Kubernetes will first evict `BestEffort` Pods running on that Node, followed by `Burstable` and
+  > finally `Guaranteed` Pods. When this eviction is due to resource pressure, only Pods exceeding
+  > resource requests are candidates for eviction.
+  > [Pod Quality of Service Classes > Quality of Service classes > Guaranteed]
+  > Pods that are `Guaranteed` have the strictest resource limits and are least likely
+  > to face eviction. They are guaranteed not to be killed until they exceed their limits
+  > or there are no lower-priority Pods that can be preempted from the Node. They may
+  > not acquire resources beyond their specified limits. These Pods can also make
+  > use of exclusive CPUs using the
+  > `static` CPU management policy.
+  > [Pod Quality of Service Classes > Quality of Service classes > Guaranteed > Criteria]
+  > For a Pod to be given a QoS class of `Guaranteed`:
+  > * Every Container in the Pod must have a memory limit and a memory request.
+  > * For every Container in the Pod, the memory limit must equal the memory request.
+  > * Every Container in the Pod must have a CPU limit and a CPU request.
+  > * For every Container in the Pod, the CPU limit must equal the CPU request.
+  > [Pod Quality of Service Classes > Quality of Service classes > Burstable]
+  > Pods that are `Burstable` have some lower-bound resource guarantees based on the request, but
+  > do not require a specific limit. If a limit is not specified, it defaults to a
+  > limit equivalent to the capacity of the Node, which allows the Pods to flexibly increase
+  > their resources if resources are available. In the event of Pod eviction due to Node
+  > resource pressure, these Pods are evicted only after all `BestEffort` Pods are evicted.
+  > Because a `Burstable` Pod can include a Container that has no resource limits or requests, a Pod
+  > that is `Burstable` can try to use any amount of node resources.
+  > [Pod Quality of Service Classes > Quality of Service classes > Burstable > Criteria]
+  > A Pod is given a QoS class of `Burstable` if:
+  > * The Pod does not meet the criteria for QoS class `Guaranteed`.
+  > * At least one Container in the Pod has a memory or CPU request or limit.
+  > [Pod Quality of Service Classes > Quality of Service classes > BestEffort]
+  > Pods in the `BestEffort` QoS class can use node resources that aren't specifically assigned
+  > to Pods in other QoS classes. For example, if you have a node with 16 CPU cores available to the
+  > kubelet, and you assign 4 CPU cores to a `Guaranteed` Pod, then a Pod in the `BestEffort`
+  > QoS class can try to use any amount of the remaining 12 CPU cores.
+  > The kubelet prefers to evict `BestEffort` Pods if the node comes under resource pressure.
+  > [Pod Quality of Service Classes > Quality of Service classes > BestEffort > Criteria]
+  > A Pod has a QoS class of `BestEffort` if it doesn't meet the criteria for either `Guaranteed`
+  > or `Burstable`. In other words, a Pod is `BestEffort` only if none of the Containers in the Pod have a
+  > memory limit or a memory request, and none of the Containers in the Pod have a
+  > CPU limit or a CPU request.
+  > Containers in a Pod can request other resources (not CPU or memory) and still be classified as
+  > `BestEffort`.
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `priority-preemption`
+
+**Question** (en, concept): How can important pods push out less important ones when the cluster is full?
+
+**Reference answer:** Create a PriorityClass and set `priorityClassName` on the important Pods; when they can't be scheduled, the scheduler can preempt (evict) lower-priority Pods.
+
+**Relevant documentation:**
+- `concepts/scheduling-eviction/pod-priority-preemption.md`, section: *Pod Priority and Preemption > PriorityClass*
+  > [Pod Priority and Preemption > PriorityClass]
+  > A PriorityClass is a non-namespaced object that defines a mapping from a
+  > priority class name to the integer value of the priority. The name is specified
+  > in the `name` field of the PriorityClass object's metadata. The value is
+  > specified in the required `value` field. The higher the value, the higher the
+  > priority.
+  > The name of a PriorityClass object must be a valid
+  > DNS subdomain name,
+  > and it cannot be prefixed with `system-`.
+  > A PriorityClass object can have any 32-bit integer value smaller than or equal
+  > to 1 billion. This means that the range of values for a PriorityClass object is
+  > from -2147483648 to 1000000000 inclusive. Larger numbers are reserved for
+  > built-in PriorityClasses that represent critical system Pods. A cluster
+  > admin should create one PriorityClass object for each such mapping that they want.
+  > PriorityClass also has two optional fields: `globalDefault` and `description`.
+  > The `globalDefault` field indicates that the value of this PriorityClass should
+  > be used for Pods without a `priorityClassName`. Only one PriorityClass with
+  > `globalDefault` set to true can exist in the system. If there is no
+  > PriorityClass with `globalDefault` set, the priority of Pods with no
+  > `priorityClassName` is zero.
+  > The `description` field is an arbitrary string. It is meant to tell users of the
+  > cluster when they should use this PriorityClass.
+  > [Pod Priority and Preemption > PriorityClass > Notes about PodPriority and existing clusters]
+  > -   If you upgrade an existing cluster without this feature, the priority
+  >     of your existing Pods is effectively zero.
+  > -   Addition of a PriorityClass with `globalDefault` set to `true` does not
+  >     change the priorities of existing Pods. The value of such a PriorityClass is
+  >     used only for Pods created after the PriorityClass is added.
+  > -   If you delete a PriorityClass, existing Pods that use the name of the
+  >     deleted PriorityClass remain unchanged, but you cannot create more Pods that
+  >     use the name of the deleted PriorityClass.
+  > [Pod Priority and Preemption > PriorityClass > Example PriorityClass]
+  > ```yaml
+  > apiVersion: scheduling.k8s.io/v1
+  > kind: PriorityClass
+  > metadata:
+  >   name: high-priority
+  > value: 1000000
+  > globalDefault: false
+  > description: "This priority class should be used for XYZ service pods only."
+  > ```
+- `concepts/scheduling-eviction/pod-priority-preemption.md`, section: *Pod Priority and Preemption > Preemption*
+  > [Pod Priority and Preemption > Preemption]
+  > When Pods are created, they go to a queue and wait to be scheduled. The
+  > scheduler picks a Pod from the queue and tries to schedule it on a Node. If no
+  > Node is found that satisfies all the specified requirements of the Pod,
+  > preemption logic is triggered for the pending Pod. Let's call the pending Pod P.
+  > Preemption logic tries to find a Node where removal of one or more Pods with
+  > lower priority than P would enable P to be scheduled on that Node. If such a
+  > Node is found, one or more lower priority Pods get evicted from the Node. After
+  > the Pods are gone, P can be scheduled on the Node.
+  > [Pod Priority and Preemption > Preemption > User exposed information]
+  > When Pod P preempts one or more Pods on Node N, `nominatedNodeName` field of Pod
+  > P's status is set to the name of Node N. This field helps the scheduler track
+  > resources reserved for Pod P and also gives users information about preemptions
+  > in their clusters.
+  > Please note that Pod P is not necessarily scheduled to the "nominated Node".
+  > The scheduler always tries the "nominated Node" before iterating over any other nodes.
+  > After victim Pods are preempted, they get their graceful termination period. If
+  > another node becomes available while scheduler is waiting for the victim Pods to
+  > terminate, scheduler may use the other node to schedule Pod P. As a result
+  > `nominatedNodeName` and `nodeName` of Pod spec are not always the same. Also, if
+  > the scheduler preempts Pods on Node N, but then a higher priority Pod than Pod P
+  > arrives, the scheduler may give Node N to the new higher priority Pod. In such a
+  > case, scheduler clears `nominatedNodeName` of Pod P. By doing this, scheduler
+  > makes Pod P eligible to preempt Pods on another Node.
+  > [Pod Priority and Preemption > Preemption > Limitations of preemption > Graceful termination of preemption victims]
+  > When Pods are preempted, the victims get their
+  > graceful termination period.
+  > They have that much time to finish their work and exit. If they don't, they are
+  > killed. This graceful termination period creates a time gap between the point
+  > that the scheduler preempts Pods and the time when the pending Pod (P) can be
+  > scheduled on the Node (N). In the meantime, the scheduler keeps scheduling other
+  > pending Pods. As victims exit or get terminated, the scheduler tries to schedule
+  > Pods in the pending queue. Therefore, there is usually a time gap between the
+  > point that scheduler preempts victims and the time that Pod P is scheduled. In
+  > order to minimize this gap, one can set graceful termination period of lower
+  > priority Pods to zero or a small number.
+  > [Pod Priority and Preemption > Preemption > Limitations of preemption > PodDisruptionBudget is supported, but not guaranteed]
+  > A PodDisruptionBudget (PDB)
+  > allows application owners to limit the number of Pods of a replicated application
+  > that are down simultaneously from voluntary disruptions. Kubernetes supports
+  > PDB when preempting Pods, but respecting PDB is best effort. The scheduler tries
+  > to find victims whose PDB are not violated by preemption, but if no such victims
+  > are found, preemption will still happen, and lower priority Pods will be removed
+  > despite their PDBs being violated.
+  > [Pod Priority and Preemption > Preemption > Limitations of preemption > Inter-Pod affinity on lower-priority Pods]
+  > A Node is considered for preemption only when the answer to this question is
+  > yes: "If all the Pods with lower priority than the pending Pod are removed from
+  > the Node, can the pending Pod be scheduled on the Node?"
+  > Preemption does not necessarily remove all lower-priority
+  > Pods. If the pending Pod can be scheduled by removing fewer than all
+  > lower-priority Pods, then only a portion of the lower-priority Pods are removed.
+  > Even so, the answer to the preceding question must be yes. If the answer is no,
+  > the Node is not considered for preemption.
+  > If a pending Pod has inter-pod affinity
+  > to one or more of the lower-priority Pods on the Node, the inter-Pod affinity
+  > rule cannot be satisfied in the absence of those lower-priority Pods. In this case,
+  > the scheduler does not preempt any Pods on the Node. Instead, it looks for another
+  > Node. The scheduler might find a suitable Node or it might not. There is no
+  > guarantee that the pending Pod can be scheduled.
+  > Our recommended solution for this problem is to create inter-Pod affinity only
+  > towards equal or higher priority Pods.
+  > [Pod Priority and Preemption > Preemption > Limitations of preemption > Cross node preemption]
+  > Suppose a Node N is being considered for preemption so that a pending Pod P can
+  > be scheduled on N. P might become feasible on N only if a Pod on another Node is
+  > preempted. Here's an example:
+  > *   Pod P is being considered for Node N.
+  > *   Pod Q is running on another Node in the same Zone as Node N.
+  > *   Pod P has Zone-wide anti-affinity with Pod Q (`topologyKey:
+  >     topology.kubernetes.io/zone`).
+  > *   There are no other cases of anti-affinity between Pod P and other Pods in
+  >     the Zone.
+  > *   In order to schedule Pod P on Node N, Pod Q can be preempted, but scheduler
+  >     does not perform cross-node preemption. So, Pod P will be deemed
+  >     unschedulable on Node N.
+  > If Pod Q were removed from its Node, the Pod anti-affinity violation would be
+  > gone, and Pod P could possibly be scheduled on Node N.
+  > We may consider adding cross Node preemption in future versions if there is
+  > enough demand and if we find an algorithm with reasonable performance.
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `sidecar-vs-init`
+
+**Question** (en, concept): What is a sidecar container and how is it different from an init container?
+
+**Reference answer:** Sidecars start before the app containers and keep running alongside them for the Pod's lifetime; init containers run to completion before the app starts.
+
+**Relevant documentation:**
+- `concepts/workloads/pods/sidecar-containers.md`, section: *Sidecar Containers > Differences from init containers*
+  > [Sidecar Containers > Differences from init containers]
+  > Sidecar containers work alongside the main container, extending its functionality and
+  > providing additional services.
+  > Sidecar containers run concurrently with the main application container. They are active
+  > throughout the lifecycle of the pod and can be started and stopped independently of the
+  > main container. Unlike init containers,
+  > sidecar containers support probes to control their lifecycle.
+  > Sidecar containers can interact directly with the main application containers, because
+  > like init containers they always share the same network, and can optionally also share
+  > volumes (filesystems).
+  > Init containers stop before the main containers start up, so init containers cannot
+  > exchange messages with the app container in a Pod. Any data passing is one-way
+  > (for example, an init container can put information inside an `emptyDir` volume).
+  > Changing the image of a sidecar container will not cause the Pod to restart, but will
+  > trigger a container restart.
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `control-plane-components`
+
+**Question** (en, concept): What does each part of the Kubernetes control plane do?
+
+**Reference answer:** kube-apiserver exposes the API, etcd stores cluster data, kube-scheduler assigns Pods to nodes, kube-controller-manager runs the controllers; nodes run the kubelet, kube-proxy and a container runtime.
+
+**Relevant documentation:**
+- `concepts/overview/components.md`, section: *Kubernetes Components > Core Components*
+  > [Kubernetes Components > Core Components]
+  > A Kubernetes cluster consists of a control plane and one or more worker nodes.
+  > Here's a brief overview of the main components:
+  > [Kubernetes Components > Core Components > Control Plane Components]
+  > Manage the overall state of the cluster:
+  > kube-apiserver
+  > : The core component server that exposes the Kubernetes HTTP API.
+  > etcd
+  > : Consistent and highly-available key value store for all API server data.
+  > kube-scheduler
+  > : Looks for Pods not yet bound to a node, and assigns each Pod to a suitable node.
+  > kube-controller-manager
+  > : Runs controllers to implement Kubernetes API behavior.
+  > cloud-controller-manager (optional)
+  > : Integrates with underlying cloud provider(s).
+  > [Kubernetes Components > Core Components > Node Components]
+  > Run on every node, maintaining running pods and providing the Kubernetes runtime environment:
+  > kubelet
+  > : Ensures that Pods are running, including their containers.
+  > kube-proxy (optional)
+  > : Maintains network rules on nodes to implement Services.
+  > Container runtime
+  > : Software responsible for running containers. Read
+  >   Container Runtimes to learn more.
+  > Your cluster may require additional software on each node; for example, you might also
+  > run systemd on a Linux node to supervise local components.
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `immutable-configmap`
+
+**Question** (en, concept): Can I make a ConfigMap read-only so nobody changes it by mistake?
+
+**Reference answer:** Yes: set `immutable: true`. Its data can't be changed afterwards; delete and recreate it to change it.
+
+**Relevant documentation:**
+- `concepts/configuration/configmap.md`, section: *ConfigMaps > Immutable ConfigMaps*
+  > [ConfigMaps > Immutable ConfigMaps {#configmap-immutable}]
+  > The Kubernetes feature _Immutable Secrets and ConfigMaps_ provides an option to set
+  > individual Secrets and ConfigMaps as immutable. For clusters that extensively use ConfigMaps
+  > (at least tens of thousands of unique ConfigMap to Pod mounts), preventing changes to their
+  > data has the following advantages:
+  > - protects you from accidental (or unwanted) updates that could cause applications outages
+  > - improves performance of your cluster by significantly reducing load on kube-apiserver, by
+  >   closing watches for ConfigMaps marked as immutable.
+  > You can create an immutable ConfigMap by setting the `immutable` field to `true`.
+  > For example:
+  > ```yaml
+  > apiVersion: v1
+  > kind: ConfigMap
+  > metadata:
+  >   ...
+  > data:
+  >   ...
+  > immutable: true
+  > ```
+  > Once a ConfigMap is marked as immutable, it is _not_ possible to revert this change
+  > nor to mutate the contents of the `data` or the `binaryData` field. You can
+  > only delete and recreate the ConfigMap. Because existing Pods maintain a mount point
+  > to the deleted ConfigMap, it is recommended to recreate these pods.
+  > ##
+  > ##
+  > * Read about Secrets.
+  > * Read Configure a Pod to Use a ConfigMap.
+  > * Read about changing a ConfigMap (or any other Kubernetes object)
+  > * Read The Twelve-Factor App to understand the motivation for
+  >   separating code from configuration.
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
+
+---
+
+### `downward-api-pod-name`
+
+**Question** (en, concept): How can a container find out its own pod name and namespace?
+
+**Reference answer:** Through the Downward API: expose `metadata.name` and `metadata.namespace` as environment variables (`fieldRef`) or as files in a `downwardAPI` volume.
+
+**Relevant documentation:**
+- `concepts/workloads/pods/downward-api.md`, section: *Downward API > Available fields*
+  > [Downward API > Available fields]
+  > Only some Kubernetes API fields are available through the downward API. This
+  > section lists which fields you can make available.
+  > You can pass information from available Pod-level fields using `fieldRef`.
+  > At the API level, the `spec` for a Pod always defines at least one
+  > Container.
+  > You can pass information from available Container-level fields using
+  > `resourceFieldRef`.
+  > [Downward API > Available fields > Information available via `fieldRef` {#downwardapi-fieldRef}]
+  > For some Pod-level fields, you can provide them to a container either as
+  > an environment variable or using a `downwardAPI` volume. The fields available
+  > via either mechanism are:
+  > `metadata.name`
+  > : the pod's name
+  > `metadata.namespace`
+  > : the pod's namespace
+  > `metadata.uid`
+  > : the pod's unique ID
+  > `metadata.annotations['<KEY>']`
+  > : the value of the pod's annotation named `<KEY>` (for example, `metadata.annotations['myannotation']`)
+  > `metadata.labels['<KEY>']`
+  > : the text value of the pod's label named `<KEY>` (for example, `metadata.labels['mylabel']`)
+  > The following information is available through environment variables
+  > **but not as a downwardAPI volume fieldRef**:
+  > `spec.serviceAccountName`
+  > : the name of the pod's service account
+  > `spec.nodeName`
+  > : the name of the node where the Pod is executing
+  > `status.hostIP`
+  > : the primary IP address of the node to which the Pod is assigned
+  > `status.hostIPs`
+  > : the IP addresses is a dual-stack version of `status.hostIP`, the first is always the same as `status.hostIP`.
+  > `status.podIP`
+  > : the pod's primary IP address (usually, its IPv4 address)
+  > `status.podIP`
+  > : the pod's primary IP address (usually, its IPv4 address)
+  > `status.podIPs`
+  > : the IP addresses is a dual-stack version of `status.podIP`, the first is always the same as `status.podIP`
+  > The following information is available through a `downwardAPI` volume
+  > `fieldRef`, **but not as environment variables**:
+  > `metadata.labels`
+  > : all of the pod's labels, formatted as `label-key="escaped-label-value"` with one label per line
+  > `metadata.annotations`
+  > : all of the pod's annotations, formatted as `annotation-key="escaped-annotation-value"` with one annotation per line
+  > [Downward API > Available fields > Information available via `resourceFieldRef` {#downwardapi-resourceFieldRef}]
+  > These container-level fields allow you to provide information about
+  > requests and limits
+  > for resources such as CPU and memory.
+  > Container CPU and memory resources can be resized while the container is running.
+  > If this happens, a downward API volume will be updated,
+  > but environment variables will not be updated unless the container restarts.
+  > See Resize CPU and Memory Resources assigned to Containers
+  > for more details.
+  > `resource: limits.cpu`
+  > : A container's CPU limit
+  > `resource: requests.cpu`
+  > : A container's CPU request
+  > `resource: limits.memory`
+  > : A container's memory limit
+  > `resource: requests.memory`
+  > : A container's memory request
+  > `resource: limits.hugepages-*`
+  > : A container's hugepages limit
+  > `resource: requests.hugepages-*`
+  > : A container's hugepages request
+  > `resource: limits.ephemeral-storage`
+  > : A container's ephemeral-storage limit
+  > `resource: requests.ephemeral-storage`
+  > : A container's ephemeral-storage request
+  > [Downward API > Available fields > Information available via `resourceFieldRef` {#downwardapi-resourceFieldRef} > Fallback information for resource limits]
+  > If CPU and memory limits are not specified for a container, and you use the
+  > downward API to try to expose that information, then the
+  > kubelet defaults to exposing the maximum allocatable value for CPU and memory
+  > based on the node allocatable
+  > calculation.
+  > ##
+  > You can read about `downwardAPI` volumes.
+  > You can try using the downward API to expose container- or Pod-level information:
+  > * as environment variables
+  > * as files in `downwardAPI` volume
+
+*Drafting note:* golden v2 draft (2026-11-07)
+
+**Decision** (tick one):
+- [ ] ✅ Correct as written
+- [ ] ✏️ Needs changes (say what under Notes)
+- [ ] ❌ Reject
+
+**Notes:**
+
 
 ---
