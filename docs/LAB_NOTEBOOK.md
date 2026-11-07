@@ -54,3 +54,9 @@ Observations from the live run (before caching):
 
 ### Decision
 Don't tune by intuition. Next: build the **golden set** (~50 questions with known relevant chunks, including the hard cases above), compute baseline recall@5 / MRR / nDCG with confidence intervals, then test hypotheses H1–H4 one at a time against that baseline.
+
+### Golden set v0 and evaluation tooling
+- [Golden set](../golden/README.md): 34 drafted items (30 retrieval: 24 EN, 6 FR; 4 out-of-scope). Relevance per document + section so it survives re-indexing. Every reference was checked to exist in the index. **Awaiting human review**; only verified items will count.
+- `driftrag-eval` scores the active index and saves the run with the golden file's checksum; `driftrag-golden` produces a review sheet with the real documentation excerpts.
+- **Dry run on unreviewed drafts** (not reportable; `experiments/R1-retrieval/results/20261107T101408Z-baseline-drafts.json`): recall@5 0.63 [0.47, 0.78], recall@10 0.71, MRR 0.47, nDCG@10 0.51, n=30. 9 questions have no relevant section in the top 5, including the predicted vocabulary-gap cases (restart, taint, DaemonSet, node selector). The ±0.16 interval shows how little 30 questions can resolve.
+- **Chunker observation:** auto-generated `kubectl` reference pages keep raw HTML option tables and empty `##` headings in chunks. Candidate fix (H5): strip HTML tables/tags during cleaning; measure its effect like the others.
