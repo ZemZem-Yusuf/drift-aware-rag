@@ -13,7 +13,9 @@ Usage::
 from __future__ import annotations
 
 import argparse
-from collections.abc import Iterable, Sequence
+import sys
+import time
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -114,8 +116,13 @@ def ingest(
     embedder: Embedder,
     config: ChunkerConfig,
     batch_size: int = 64,
+    progress: Callable[[int, int], None] | None = None,
 ) -> IngestReport:
-    """Build a new, ready index version from ``documents``. Call inside a transaction."""
+    """Build a new, ready index version from ``documents``. Call inside a transaction.
+
+    ``progress(documents_done, chunks_done)`` is called after every embedded batch, so long
+    runs show they're alive (embedding the full corpus on a CPU takes minutes).
+    """
     version = create_index_version(
         conn,
         name=index_name,
@@ -136,11 +143,19 @@ def ingest(
                 _insert_batch(conn, version, embedder, pending)
                 chunk_count += len(pending)
                 pending = []
+                if progress is not None:
+                    progress(document_count, chunk_count)
     if pending:
         _insert_batch(conn, version, embedder, pending)
         chunk_count += len(pending)
+        if progress is not None:
+            progress(document_count, chunk_count)
     ready = finalize_index_version(conn, version.id)
     return IngestReport(version=ready, documents=document_count, chunks=chunk_count)
+
+
+def _log(message: str) -> None:
+    print(f"[ingest {time.strftime('%H:%M:%S')}] {message}", file=sys.stderr, flush=True)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -168,10 +183,32 @@ def main(argv: list[str] | None = None) -> None:
 
     embedder: Embedder = E5Embedder() if args.embedder == "e5" else HashingEmbedder(dim=args.dim)
     config = ChunkerConfig(max_chars=args.max_chars, overlap_chars=args.overlap_chars)
-    documents = (doc for snapshot in args.snapshot for doc in read_snapshot(snapshot))
+    # Read and verify every file before opening the transaction: a bad checksum fails in
+    # seconds instead of after minutes of embedding, and the total gives a progress figure.
+    documents = [doc for snapshot in args.snapshot for doc in read_snapshot(snapshot)]
+    _log(f"verified {len(documents)} documents; embedding with {embedder.name}")
+    started = time.monotonic()
+    last_report = 0.0
+
+    def progress(done: int, chunks: int) -> None:
+        nonlocal last_report
+        elapsed = time.monotonic() - started
+        if elapsed - last_report >= 15 or done == len(documents):
+            last_report = elapsed
+            rate = chunks / elapsed if elapsed else 0.0
+            _log(f"{done}/{len(documents)} documents, {chunks} chunks, {rate:.0f} chunks/s")
+
     engine = make_engine(get_settings().database_url.get_secret_value())
     with engine.begin() as conn:
-        report = ingest(conn, documents, index_name=args.name, embedder=embedder, config=config)
+        report = ingest(
+            conn,
+            documents,
+            index_name=args.name,
+            embedder=embedder,
+            config=config,
+            progress=progress,
+        )
+        _log("building the HNSW index and committing")
         if args.alias:
             set_alias(conn, args.alias, report.version.id, reason=f"ingest {args.name}")
     print(

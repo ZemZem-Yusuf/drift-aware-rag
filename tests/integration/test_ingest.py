@@ -162,3 +162,23 @@ def test_changed_content_under_same_version_label_is_refused_and_rolled_back(
             text("SELECT count(*) FROM rag.index_versions WHERE name = :n"), {"n": failed_name}
         ).scalar_one()
     assert leftover == 0  # the whole ingest, partition included, was rolled back
+
+
+def test_progress_is_reported_after_each_batch(engine: Engine, tmp_path: Path) -> None:
+    snapshot = write_snapshot(
+        tmp_path, {"pods.md": PODS_EN, "svc.md": SERVICES_EN}, version=uuid.uuid4().hex[:6]
+    )
+    calls: list[tuple[int, int]] = []
+    with engine.begin() as conn:
+        report = ingest(
+            conn,
+            read_snapshot(snapshot),
+            index_name=_name(),
+            embedder=HashingEmbedder(dim=64),
+            config=ChunkerConfig(min_chars=0),
+            batch_size=1,
+            progress=lambda docs, chunks: calls.append((docs, chunks)),
+        )
+    assert len(calls) == report.chunks  # one call per batch of one chunk
+    assert calls == sorted(calls)  # counts only grow
+    assert calls[-1] == (report.documents, report.chunks)
