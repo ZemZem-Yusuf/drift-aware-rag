@@ -15,9 +15,10 @@ from __future__ import annotations
 import argparse
 import sys
 import time
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from sqlalchemy import Connection, text
 
@@ -28,7 +29,7 @@ from driftrag.db.registry import (
     set_alias,
 )
 from driftrag.rag.chunking import Chunk, ChunkerConfig, chunk_page, parse_page
-from driftrag.rag.corpus import CorpusIntegrityError, SourceDocument, read_snapshot
+from driftrag.rag.corpus import CorpusIntegrityError, SampleStats, SourceDocument, read_snapshot
 from driftrag.rag.embeddings import E5Embedder, Embedder, HashingEmbedder, to_pgvector
 
 
@@ -117,6 +118,7 @@ def ingest(
     config: ChunkerConfig,
     batch_size: int = 64,
     progress: Callable[[int, int], None] | None = None,
+    preprocessing: Mapping[str, Any] | None = None,
 ) -> IngestReport:
     """Build a new, ready index version from ``documents``. Call inside a transaction.
 
@@ -128,7 +130,12 @@ def ingest(
         name=index_name,
         embedding_model=embedder.name,
         embedding_dim=embedder.dim,
-        chunker_config={**config.model_dump(), "config_id": config.config_id},
+        chunker_config={
+            **config.model_dump(),
+            "config_id": config.config_id,
+            # Corpus preprocessing affects the chunks too, so it is recorded with them.
+            "preprocessing": dict(preprocessing or {}),
+        },
     )
     document_count = 0
     chunk_count = 0
@@ -179,14 +186,26 @@ def main(argv: list[str] | None = None) -> None:
         choices=["active", "canary"],
         help="also point this alias at the new version, in the same transaction",
     )
+    parser.add_argument(
+        "--code-samples",
+        action="store_true",
+        help="inline the example files that pages include through code_sample shortcodes",
+    )
     args = parser.parse_args(argv)
 
     embedder: Embedder = E5Embedder() if args.embedder == "e5" else HashingEmbedder(dim=args.dim)
     config = ChunkerConfig(max_chars=args.max_chars, overlap_chars=args.overlap_chars)
     # Read and verify every file before opening the transaction: a bad checksum fails in
     # seconds instead of after minutes of embedding, and the total gives a progress figure.
-    documents = [doc for snapshot in args.snapshot for doc in read_snapshot(snapshot)]
+    samples = SampleStats()
+    documents = [
+        doc
+        for snapshot in args.snapshot
+        for doc in read_snapshot(snapshot, code_samples=args.code_samples, stats=samples)
+    ]
     _log(f"verified {len(documents)} documents; embedding with {embedder.name}")
+    if args.code_samples:
+        _log(f"inlined {samples.resolved} code samples ({samples.missing} not found)")
     started = time.monotonic()
     last_report = 0.0
 
@@ -207,6 +226,7 @@ def main(argv: list[str] | None = None) -> None:
             embedder=embedder,
             config=config,
             progress=progress,
+            preprocessing={"code_samples": args.code_samples},
         )
         _log("building the HNSW index and committing")
         if args.alias:
