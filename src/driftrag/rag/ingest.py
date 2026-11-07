@@ -82,10 +82,29 @@ def upsert_document(conn: Connection, doc: SourceDocument, title: str) -> int:
     return int(row)
 
 
+def embedding_text(chunk: Chunk, *, with_heading: bool) -> str:
+    """The text given to the embedding model for a chunk.
+
+    With ``with_heading``, the section path ("Taints and Tolerations > Concepts") goes first.
+    Headings often carry the words a user would search for (H1). Only the embedding input
+    changes: the stored content, the full-text index and the prompt are the same either way.
+    """
+    if with_heading and chunk.heading_path:
+        return f"{chunk.heading_path}\n\n{chunk.content}"
+    return chunk.content
+
+
 def _insert_batch(
-    conn: Connection, version: IndexVersion, embedder: Embedder, batch: Sequence[_PendingChunk]
+    conn: Connection,
+    version: IndexVersion,
+    embedder: Embedder,
+    batch: Sequence[_PendingChunk],
+    *,
+    embed_headings: bool,
 ) -> None:
-    vectors = embedder.embed_documents([p.chunk.content for p in batch])
+    vectors = embedder.embed_documents(
+        [embedding_text(p.chunk, with_heading=embed_headings) for p in batch]
+    )
     conn.execute(
         text(
             """
@@ -119,6 +138,7 @@ def ingest(
     batch_size: int = 64,
     progress: Callable[[int, int], None] | None = None,
     preprocessing: Mapping[str, Any] | None = None,
+    embed_headings: bool = False,
 ) -> IngestReport:
     """Build a new, ready index version from ``documents``. Call inside a transaction.
 
@@ -135,6 +155,7 @@ def ingest(
             "config_id": config.config_id,
             # Corpus preprocessing affects the chunks too, so it is recorded with them.
             "preprocessing": dict(preprocessing or {}),
+            "embedding_input": "heading_path+content" if embed_headings else "content",
         },
     )
     document_count = 0
@@ -147,13 +168,13 @@ def ingest(
         for chunk in chunk_page(doc.text, config, fallback_title=doc.path):
             pending.append(_PendingChunk(document_id, doc.lang, chunk))
             if len(pending) >= batch_size:
-                _insert_batch(conn, version, embedder, pending)
+                _insert_batch(conn, version, embedder, pending, embed_headings=embed_headings)
                 chunk_count += len(pending)
                 pending = []
                 if progress is not None:
                     progress(document_count, chunk_count)
     if pending:
-        _insert_batch(conn, version, embedder, pending)
+        _insert_batch(conn, version, embedder, pending, embed_headings=embed_headings)
         chunk_count += len(pending)
         if progress is not None:
             progress(document_count, chunk_count)
@@ -185,6 +206,11 @@ def main(argv: list[str] | None = None) -> None:
         "--alias",
         choices=["active", "canary"],
         help="also point this alias at the new version, in the same transaction",
+    )
+    parser.add_argument(
+        "--embed-headings",
+        action="store_true",
+        help="embed each chunk's section path together with its text (H1)",
     )
     parser.add_argument(
         "--code-samples",
@@ -227,6 +253,7 @@ def main(argv: list[str] | None = None) -> None:
             config=config,
             progress=progress,
             preprocessing={"code_samples": args.code_samples},
+            embed_headings=args.embed_headings,
         )
         _log("building the HNSW index and committing")
         if args.alias:

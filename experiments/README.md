@@ -37,6 +37,7 @@ Each results file contains:
 | [E0](E0-smoke/) | Does the full pipeline work end to end on the real corpus? | Done 2026-11-07: works; 1 retrieval failure diagnosed |
 | [R1](R1-retrieval/) | How good is retrieval on the human-verified golden set? | Baseline 2026-11-07: recall@5 0.607 [0.446, 0.762], n=28 |
 | [R1/H6](R1-retrieval/) | Do inlined code samples improve retrieval? | 2026-11-07: no (recall@5 Δ 0.000; MRR Δ +0.040 [−0.007, +0.097]); small answer gain on config questions |
+| [R1/H1](R1-retrieval/) | Does embedding section titles with the text improve retrieval? | 2026-11-07: no, rejected (recall@5 -0.024 [-0.107, +0.036]); headings pushed some relevant pages down |
 | E1 | Which detector best catches query drift at a fixed false-alarm rate? | Planned |
 | E2 | Which remediation recovers quality fastest and cheapest? | Planned |
 | E3 | Does changing the embedding model cause false drift alarms? | Planned |
