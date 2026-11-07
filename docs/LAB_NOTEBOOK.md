@@ -125,3 +125,27 @@ Measure each hypothesis against this baseline on the same 28 questions, with pai
 - **Side finding (fusion):** for `hpa-cpu`, vector search ranks the right page #5 on the active index, yet it never reaches the fused top 10. RRF rewards chunks found by *both* searches, so a strong single-search hit loses to weaker chunks found by both. Evidence for H4 (fusion weights / candidate depth).
 
 **Decision:** reject H1; `active` stays on version 3. The vocabulary gap isn't solvable by changing what the small embedding model sees. Next candidates, in order: **H2 cross-encoder reranker** over the fused top 50 (judges question and passage together), **H3 query rewriting** (map user wording to documentation terms, e.g. "keep pods off a node" → taints), and **H4 fusion weights**.
+
+### H4: fusion weights and candidate depth. Result: rejected
+**Method:** no re-indexing; the same active index (version 3), only retrieval parameters. A grid of 8 settings was **fixed and committed before running** (commit `10b8e53`) to limit tuning on the evaluation set. Every setting is reported; each is compared with the baseline setting on the same 28 questions, with 95% and Bonferroni-corrected (99.29%, 7 comparisons) paired intervals.
+
+**Results** (`results/20261107T122557Z-h4-fusion-sweep.json`):
+
+| Setting | recall@5 | MRR | recall@5 diff, corrected interval | Questions lost |
+|---|---|---|---|---|
+| baseline: 50 candidates, weights 1:1, RRF k=60 | 0.607 | 0.530 | — | — |
+| 100 candidates | 0.589 | 0.535 | −0.018 [−0.071, 0.000] | netpol |
+| 200 candidates | 0.589 | 0.535 | −0.018 [−0.071, 0.000] | netpol |
+| vector weight ×2 | 0.589 | 0.493 | −0.018 [−0.071, 0.000] | probes |
+| vector weight ×3 | 0.589 | 0.571 | −0.018 [−0.071, 0.000] | probes |
+| keyword weight ×2 | 0.518 | 0.455 | −0.089 [−0.250, 0.000] | secret, pod-pending, netpol |
+| RRF k=20 | 0.607 | 0.491 | 0.000 | — |
+| RRF k=100 | 0.607 | 0.530 | 0.000 | — |
+
+- No setting improves recall@5 or recovers a single missed question. Weighting keyword search up clearly hurts. Vector ×3 raises MRR by +0.041 (95% interval [−0.069, +0.152]), which is noise.
+- **Decision:** keep the baseline settings. Because nothing was selected, there's no optimism from tuning on the test set to correct for.
+
+### Where the three negative results point
+H6, H1 and H4 changed what is indexed, what the embedding model sees, and how the two result lists are combined. None fixed the 7 vocabulary-gap misses. The diagnostics agree: for some misses the right page is among the candidates (HPA: vector #5), for others it never is (restart, DaemonSet: not in the vector top 200). Nothing in the pipeline judges whether a passage *answers* the question. Next, in order:
+1. **H2: cross-encoder reranker** over the fused candidates. It reads question and passage together, which is the standard fix when first-stage retrieval finds candidates but ranks them poorly.
+2. **H3: query rewriting** for the misses whose page never enters the candidates: rewrite the question into documentation vocabulary (or add a hypothetical answer, HyDE) before retrieval.
