@@ -220,3 +220,14 @@ Same pre-declared grid (`h2_rerank.py`, unchanged), now on the active index 2 an
 - **Latency:** p50 1.9 s here vs 5.3 s in the first H2 run, with the same code, model and settings. The cause isn't established (machine load is the likely candidate; the index also differs, 2 vs 3, with longer example chunks in 3). Latency needs a dedicated benchmark before any number is quoted as a property of the system. Either way it is 25–80× the first stage.
 
 **Decision:** keep reranking off by default. The evidence now points the same way on three samples, which justifies investing in it, not shipping it. Next: (1) make it cheaper and measure latency properly (top 20, 256-token pairs, ONNX/int8, rerank only when first-stage scores are close); (2) H3 query rewriting for the misses that never enter the candidates (`restart-deployment`), which reranking can't fix.
+
+### E4 step 1: answers for the whole golden set
+Retrieval is measured; answer quality isn't yet, and the Phase 1 exit criterion also needs a calibrated judge (roadmap: "baseline recall@5 / faithfulness with CIs; judge κ reported"). The E4 protocol (`experiments/E4-judge/README.md`) was committed before any answer was generated (`1a94e0f`). It defines the human labels (supported, correct, refusal justified), keeps labelling blind to judges by running them only afterwards, and fixes the adoption rule for a judge in advance: κ ≥ 0.6 with the lower end of the 95% interval ≥ 0.4.
+
+**Answers** (`results/20261107T152454Z-answers.json`, clean commit `1a94e0f`, index 2, no reranker, top 5, `answer-v1`, `gemini-2.5-flash`, temperature 0, 85 real calls):
+- 89 questions: 80 answered, 5 in-scope refusals (`hpa-cpu`, `fr-scale`, `emptydir-scratch`, `lifecycle-hooks`, `termination-message`), and all 4 out-of-scope questions refused.
+- Every answer cites at least one source; no citation points to a source that doesn't exist. Only validity is checked automatically here; whether a cited source supports the sentence is what the human labels measure.
+- Median output tokens reported by the provider: 755. Gemini 2.5 counts its hidden reasoning tokens in this number, so it overstates the visible answer length.
+- `hpa-cpu` is a known retrieval miss (R1), so a refusal there is the honest outcome. Whether the other 4 refusals are justified is one of the labels.
+
+**Next:** human labels in batches of 15 (`driftrag-label sheet --max-items 15`; 85 answers to label), then the judges.

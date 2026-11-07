@@ -43,6 +43,6 @@ Each results file contains:
 | E1 | Which detector best catches query drift at a fixed false-alarm rate? | Planned |
 | E2 | Which remediation recovers quality fastest and cheapest? | Planned |
 | E3 | Does changing the embedding model cause false drift alarms? | Planned |
-| E4 | Can the LLM judge be trusted as an eval gate (agreement with human labels)? | Planned |
+| [E4](E4-judge/) | Can the LLM judge be trusted as an eval gate (agreement with human labels)? | Protocol pre-declared; 89 answers generated 2026-11-07 (80 answered, 5 in-scope refusals, 4/4 out-of-scope refused); human labelling in progress |
 | E5 | Does the probe set catch a silent upstream model change? | Planned |
 | E6 | How much traffic must be judged to detect answer drift? | Planned |
