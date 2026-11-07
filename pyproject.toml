@@ -30,6 +30,7 @@ driftrag-corpus = "driftrag.datasets.k8s_docs:main"
 driftrag-ingest = "driftrag.rag.ingest:main"
 driftrag-eval = "driftrag.eval_cli:main"
 driftrag-golden = "driftrag.golden_cli:main"
+driftrag-label = "driftrag.label_cli:main"
 
 [dependency-groups]
 dev = [
