@@ -28,6 +28,8 @@ embeddings = [
 [project.scripts]
 driftrag-corpus = "driftrag.datasets.k8s_docs:main"
 driftrag-ingest = "driftrag.rag.ingest:main"
+driftrag-eval = "driftrag.eval_cli:main"
+driftrag-golden = "driftrag.golden_cli:main"
 
 [dependency-groups]
 dev = [
@@ -71,6 +73,7 @@ audit = "pip-audit --skip-editable"
 dev = "uvicorn driftrag.api.app:app --reload --host 127.0.0.1 --port 8010"
 corpus = "driftrag-corpus"
 migrate = "alembic upgrade head"
+eval = "driftrag-eval"
 check = ["lint", "format-check", "typecheck", "test"]
 
 # ---------------------------------------------------------------- ruff
