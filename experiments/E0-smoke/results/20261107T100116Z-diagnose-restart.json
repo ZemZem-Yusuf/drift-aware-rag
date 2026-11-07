@@ -1,0 +1,178 @@
+{
+  "experiment": "E0-smoke",
+  "run": "diagnose-restart",
+  "environment": {
+    "recorded_at": "2026-11-07T10:01:16+00:00",
+    "git": {
+      "commit": "d3031a9d846040949414ab83144a19d69440a539",
+      "dirty": true
+    },
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "packages": {
+      "drift-aware-rag": "0.0.1",
+      "litellm": "1.103.10",
+      "sentence-transformers": "6.2.0",
+      "torch": "2.15.0+cpu",
+      "sqlalchemy": "2.1.8",
+      "psycopg": "3.3.8",
+      "pgvector": "0.5.1"
+    },
+    "settings": {
+      "generator_model": "gemini/gemini-2.5-flash",
+      "fallback_model": null,
+      "llm_daily_request_limits": {
+        "gemini": 200,
+        "groq": 500
+      },
+      "gemini_key_configured": true,
+      "groq_key_configured": false
+    },
+    "index": {
+      "id": 2,
+      "name": "k8s-1.33-e5",
+      "status": "ready",
+      "embedding_model": "intfloat/multilingual-e5-small@614241f6",
+      "embedding_dim": 384,
+      "chunker_config": {
+        "version": 1,
+        "strategy": "markdown-headings",
+        "config_id": "caf19343c281",
+        "max_chars": 1200,
+        "min_chars": 80,
+        "overlap_chars": 200
+      },
+      "created_at": "2026-11-07T09:24:35.682447+00:00",
+      "per_lang": {
+        "en": {
+          "chunks": 13910,
+          "documents": 1444
+        },
+        "fr": {
+          "chunks": 2029,
+          "documents": 211
+        }
+      }
+    }
+  },
+  "config": {
+    "candidates": 200,
+    "embedder": "intfloat/multilingual-e5-small@614241f6"
+  },
+  "results": {
+    "natural": {
+      "query": "How do I restart all the pods of a Deployment?",
+      "top5": [
+        {
+          "document": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Updating a Deployment",
+          "vector_rank": 5,
+          "keyword_rank": 5
+        },
+        {
+          "document": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Use Case",
+          "vector_rank": 2,
+          "keyword_rank": 45
+        },
+        {
+          "document": "tasks/manage-kubernetes-objects/update-api-object-kubectl-patch.md",
+          "heading_path": "Update API Objects in Place Using kubectl patch > Use a strategic merge patch to update a Deployment",
+          "vector_rank": 32,
+          "keyword_rank": 22
+        },
+        {
+          "document": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Updating a Deployment",
+          "vector_rank": 1,
+          "keyword_rank": 91
+        },
+        {
+          "document": "concepts/workloads/pods/pod-lifecycle.md",
+          "heading_path": "Pod Lifecycle > Pod lifetime > Pods and fault recovery {#pod-fault-recovery}",
+          "vector_rank": 92,
+          "keyword_rank": 1
+        }
+      ],
+      "targets": [
+        {
+          "document": "reference/kubectl/generated/kubectl_rollout/kubectl_rollout_restart.md",
+          "best": {
+            "fused_rank": 58,
+            "chunk_id": 12522,
+            "heading_path": "kubectl rollout restart",
+            "vector_rank": null,
+            "keyword_rank": 21
+          }
+        },
+        {
+          "document": "reference/kubectl/quick-reference.md",
+          "best": {
+            "fused_rank": 36,
+            "chunk_id": 12865,
+            "heading_path": "kubectl Quick Reference > Delete all pods matching the awk pattern1 or pattern2",
+            "vector_rank": null,
+            "keyword_rank": 11
+          }
+        }
+      ]
+    },
+    "command": {
+      "query": "kubectl rollout restart deployment",
+      "top5": [
+        {
+          "document": "reference/kubectl/generated/kubectl_rollout/kubectl_rollout_restart.md",
+          "heading_path": "kubectl rollout restart",
+          "vector_rank": 1,
+          "keyword_rank": 1
+        },
+        {
+          "document": "reference/kubectl/generated/kubectl_rollout/_index.md",
+          "heading_path": "kubectl rollout",
+          "vector_rank": 3,
+          "keyword_rank": 2
+        },
+        {
+          "document": "reference/kubectl/quick-reference.md",
+          "heading_path": "kubectl Quick Reference > Get a deployment's status subresource",
+          "vector_rank": 7,
+          "keyword_rank": 3
+        },
+        {
+          "document": "reference/kubectl/generated/kubectl_rollout/_index.md",
+          "heading_path": "kubectl rollout",
+          "vector_rank": 5,
+          "keyword_rank": 6
+        },
+        {
+          "document": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Pausing and Resuming a rollout of a Deployment {#pausing-and-resuming-a-deployment}",
+          "vector_rank": 6,
+          "keyword_rank": 7
+        }
+      ],
+      "targets": [
+        {
+          "document": "reference/kubectl/generated/kubectl_rollout/kubectl_rollout_restart.md",
+          "best": {
+            "fused_rank": 1,
+            "chunk_id": 12522,
+            "heading_path": "kubectl rollout restart",
+            "vector_rank": 1,
+            "keyword_rank": 1
+          }
+        },
+        {
+          "document": "reference/kubectl/quick-reference.md",
+          "best": {
+            "fused_rank": 3,
+            "chunk_id": 12854,
+            "heading_path": "kubectl Quick Reference > Get a deployment's status subresource",
+            "vector_rank": 7,
+            "keyword_rank": 3
+          }
+        }
+      ]
+    }
+  }
+}

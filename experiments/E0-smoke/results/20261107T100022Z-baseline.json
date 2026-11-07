@@ -1,0 +1,484 @@
+{
+  "experiment": "E0-smoke",
+  "run": "baseline",
+  "environment": {
+    "recorded_at": "2026-11-07T10:00:21+00:00",
+    "git": {
+      "commit": "7d0608fb39efdade9948450fdd3b283f850a748d",
+      "dirty": false
+    },
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "packages": {
+      "drift-aware-rag": "0.0.1",
+      "litellm": "1.103.10",
+      "sentence-transformers": "6.2.0",
+      "torch": "2.15.0+cpu",
+      "sqlalchemy": "2.1.8",
+      "psycopg": "3.3.8",
+      "pgvector": "0.5.1"
+    },
+    "settings": {
+      "generator_model": "gemini/gemini-2.5-flash",
+      "fallback_model": null,
+      "llm_daily_request_limits": {
+        "gemini": 200,
+        "groq": 500
+      },
+      "gemini_key_configured": true,
+      "groq_key_configured": false
+    },
+    "index": {
+      "id": 2,
+      "name": "k8s-1.33-e5",
+      "status": "ready",
+      "embedding_model": "intfloat/multilingual-e5-small@614241f6",
+      "embedding_dim": 384,
+      "chunker_config": {
+        "version": 1,
+        "strategy": "markdown-headings",
+        "config_id": "caf19343c281",
+        "max_chars": 1200,
+        "min_chars": 80,
+        "overlap_chars": 200
+      },
+      "created_at": "2026-11-07T09:24:35.682447+00:00",
+      "per_lang": {
+        "en": {
+          "chunks": 13910,
+          "documents": 1444
+        },
+        "fr": {
+          "chunks": 2029,
+          "documents": 211
+        }
+      }
+    }
+  },
+  "config": {
+    "top_k": 5,
+    "alias": "active",
+    "embedder": "intfloat/multilingual-e5-small@614241f6"
+  },
+  "results": [
+    {
+      "id": "restart-deployment",
+      "lang": "en",
+      "question": "How do I restart all the pods of a Deployment?",
+      "answer": "To \"restart\" all Pods of a Deployment, you need to update the Deployment's Pod template [1]. A given Pod is never \"rescheduled\" to a different node; instead, it is replaced by a new, near-identical Pod [5].\n\nYou can declare the new state of the Pods by updating the `PodTemplateSpec` of the Deployment [2]. This action creates a new ReplicaSet, and the Deployment manages moving the Pods from the old ReplicaSet to the new one at a controlled rate [2]. The old Pods get terminated and replaced by new ones [3].\n\nFor example, you can patch your Deployment using a command like:\n```shell\nkubectl patch deployment patch-demo --patch-file patch-file.yaml\n```\nThis command, when applied to a Deployment, will cause the existing Pods to be terminated and replaced by new ones [3].",
+      "refused": false,
+      "prompt_version": "answer-v1",
+      "citations": [
+        {
+          "source_id": 1,
+          "chunk_id": 8224,
+          "document_path": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Updating a Deployment"
+        },
+        {
+          "source_id": 5,
+          "chunk_id": 8538,
+          "document_path": "concepts/workloads/pods/pod-lifecycle.md",
+          "heading_path": "Pod Lifecycle > Pod lifetime > Pods and fault recovery {#pod-fault-recovery}"
+        },
+        {
+          "source_id": 2,
+          "chunk_id": 8214,
+          "document_path": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Use Case"
+        },
+        {
+          "source_id": 3,
+          "chunk_id": 19481,
+          "document_path": "tasks/manage-kubernetes-objects/update-api-object-kubectl-patch.md",
+          "heading_path": "Update API Objects in Place Using kubectl patch > Use a strategic merge patch to update a Deployment"
+        }
+      ],
+      "invalid_citations": [],
+      "sources": [
+        {
+          "rank": 1,
+          "chunk_id": 8224,
+          "document_path": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Updating a Deployment",
+          "rrf_score": 0.03076923076923077,
+          "vector_rank": 5,
+          "keyword_rank": 5
+        },
+        {
+          "rank": 2,
+          "chunk_id": 8214,
+          "document_path": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Use Case",
+          "rrf_score": 0.02565284178187404,
+          "vector_rank": 2,
+          "keyword_rank": 45
+        },
+        {
+          "rank": 3,
+          "chunk_id": 19481,
+          "document_path": "tasks/manage-kubernetes-objects/update-api-object-kubectl-patch.md",
+          "heading_path": "Update API Objects in Place Using kubectl patch > Use a strategic merge patch to update a Deployment",
+          "rrf_score": 0.023064687168610817,
+          "vector_rank": 32,
+          "keyword_rank": 22
+        },
+        {
+          "rank": 4,
+          "chunk_id": 8225,
+          "document_path": "concepts/workloads/controllers/deployment.md",
+          "heading_path": "Deployments > Updating a Deployment",
+          "rrf_score": 0.01639344262295082,
+          "vector_rank": 1,
+          "keyword_rank": null
+        },
+        {
+          "rank": 5,
+          "chunk_id": 8538,
+          "document_path": "concepts/workloads/pods/pod-lifecycle.md",
+          "heading_path": "Pod Lifecycle > Pod lifetime > Pods and fault recovery {#pod-fault-recovery}",
+          "rrf_score": 0.01639344262295082,
+          "vector_rank": null,
+          "keyword_rank": 1
+        }
+      ],
+      "usage": {
+        "model": "gemini-2.5-flash",
+        "input_tokens": 1574,
+        "output_tokens": 1071,
+        "cost_usd": 0.0031497,
+        "latency_ms": 0.0,
+        "cached": true
+      }
+    },
+    {
+      "id": "probes",
+      "lang": "en",
+      "question": "What is the difference between a liveness probe and a readiness probe?",
+      "answer": "Liveness probes are used by the kubelet to know when to restart a container [1][4]. For example, they can catch a deadlock where an application is running but unable to make progress [1][4]. If a container repeatedly fails its liveness probe, the kubelet restarts it [4].\n\nReadiness probes are used by the kubelet to know when a container is ready to start accepting traffic [1]. They control which Pods are used as backends for Services, and a Pod is removed from Service load balancers when it is not ready [1]. If a readiness probe is specified, a Pod will start without receiving traffic and only begin receiving traffic after the probe succeeds [2]. Readiness probes can also check if required back-end services are available, helping to avoid directing traffic to Pods that can only respond with error messages [2].\n\nLiveness indicates if a process is scheduled and healthy, while readiness indicates if it is able to process input [5]. Liveness is a necessary, but not sufficient, condition for readiness [5].",
+      "refused": false,
+      "prompt_version": "answer-v1",
+      "citations": [
+        {
+          "source_id": 1,
+          "chunk_id": 18526,
+          "document_path": "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+          "heading_path": "Configure Liveness, Readiness and Startup Probes"
+        },
+        {
+          "source_id": 4,
+          "chunk_id": 6652,
+          "document_path": "concepts/configuration/liveness-readiness-startup-probes.md",
+          "heading_path": "Liveness, Readiness, and Startup Probes > Liveness probe"
+        },
+        {
+          "source_id": 2,
+          "chunk_id": 8570,
+          "document_path": "concepts/workloads/pods/pod-lifecycle.md",
+          "heading_path": "Pod Lifecycle > Container probes > Types of probe > When should you use a readiness probe?"
+        },
+        {
+          "source_id": 5,
+          "chunk_id": 20150,
+          "document_path": "tutorials/stateful-application/zookeeper.md",
+          "heading_path": "Running ZooKeeper, A Distributed System Coordinator > Managing the ZooKeeper process > Testing for readiness"
+        }
+      ],
+      "invalid_citations": [],
+      "sources": [
+        {
+          "rank": 1,
+          "chunk_id": 18526,
+          "document_path": "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+          "heading_path": "Configure Liveness, Readiness and Startup Probes",
+          "rrf_score": 0.03252247488101534,
+          "vector_rank": 2,
+          "keyword_rank": 1
+        },
+        {
+          "rank": 2,
+          "chunk_id": 8570,
+          "document_path": "concepts/workloads/pods/pod-lifecycle.md",
+          "heading_path": "Pod Lifecycle > Container probes > Types of probe > When should you use a readiness probe?",
+          "rrf_score": 0.030621785881252923,
+          "vector_rank": 9,
+          "keyword_rank": 2
+        },
+        {
+          "rank": 3,
+          "chunk_id": 18527,
+          "document_path": "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+          "heading_path": "Configure Liveness, Readiness and Startup Probes",
+          "rrf_score": 0.030536130536130537,
+          "vector_rank": 5,
+          "keyword_rank": 6
+        },
+        {
+          "rank": 4,
+          "chunk_id": 6652,
+          "document_path": "concepts/configuration/liveness-readiness-startup-probes.md",
+          "heading_path": "Liveness, Readiness, and Startup Probes > Liveness probe",
+          "rrf_score": 0.03036576949620428,
+          "vector_rank": 3,
+          "keyword_rank": 9
+        },
+        {
+          "rank": 5,
+          "chunk_id": 20150,
+          "document_path": "tutorials/stateful-application/zookeeper.md",
+          "heading_path": "Running ZooKeeper, A Distributed System Coordinator > Managing the ZooKeeper process > Testing for readiness",
+          "rrf_score": 0.030330882352941176,
+          "vector_rank": 4,
+          "keyword_rank": 8
+        }
+      ],
+      "usage": {
+        "model": "gemini-2.5-flash",
+        "input_tokens": 1411,
+        "output_tokens": 1565,
+        "cost_usd": 0.0043358,
+        "latency_ms": 0.0,
+        "cached": true
+      }
+    },
+    {
+      "id": "resource-limits",
+      "lang": "en",
+      "question": "How can I limit how much CPU and memory a container can use?",
+      "answer": "Both `cpu` and `memory` limits for a container are applied by the kubelet and container runtime, and are ultimately enforced by the kernel, using cgroups on Linux nodes [1].\n\nFor `cpu` limits, the kernel enforces them through CPU throttling [1]. When a container approaches its `cpu` limit, the kernel restricts its access to the CPU, making it a hard limit [1]. Containers cannot use more CPU than specified in their `cpu` limit [1].\n\nFor `memory` limits, the kernel enforces them with out of memory (OOM) kills [3]. If a container uses more than its `memory` limit, the kernel may terminate it, but this only happens when the kernel detects memory pressure [3]. This means `memory` limits are enforced reactively, and a container might use more memory than its limit before being killed [3].\n\nThese limits are specified using `resource: limits.cpu` for CPU and `resource: limits.memory` for memory [4].",
+      "refused": false,
+      "prompt_version": "answer-v1",
+      "citations": [
+        {
+          "source_id": 1,
+          "chunk_id": 6656,
+          "document_path": "concepts/configuration/manage-resources-containers.md",
+          "heading_path": "Resource Management for Pods and Containers > Requests and limits"
+        },
+        {
+          "source_id": 3,
+          "chunk_id": 6657,
+          "document_path": "concepts/configuration/manage-resources-containers.md",
+          "heading_path": "Resource Management for Pods and Containers > Requests and limits"
+        },
+        {
+          "source_id": 4,
+          "chunk_id": 8513,
+          "document_path": "concepts/workloads/pods/downward-api.md",
+          "heading_path": "Downward API > Available fields > Information available via `resourceFieldRef` {#downwardapi-resourceFieldRef}"
+        }
+      ],
+      "invalid_citations": [],
+      "sources": [
+        {
+          "rank": 1,
+          "chunk_id": 6656,
+          "document_path": "concepts/configuration/manage-resources-containers.md",
+          "heading_path": "Resource Management for Pods and Containers > Requests and limits",
+          "rrf_score": 0.030776515151515152,
+          "vector_rank": 6,
+          "keyword_rank": 4
+        },
+        {
+          "rank": 2,
+          "chunk_id": 18445,
+          "document_path": "tasks/configure-pod-container/assign-cpu-resource.md",
+          "heading_path": "Assign CPU Resources to Containers and Pods > Specify a CPU request and a CPU limit",
+          "rrf_score": 0.03047794966520434,
+          "vector_rank": 11,
+          "keyword_rank": 1
+        },
+        {
+          "rank": 3,
+          "chunk_id": 6657,
+          "document_path": "concepts/configuration/manage-resources-containers.md",
+          "heading_path": "Resource Management for Pods and Containers > Requests and limits",
+          "rrf_score": 0.02928692699490662,
+          "vector_rank": 2,
+          "keyword_rank": 16
+        },
+        {
+          "rank": 4,
+          "chunk_id": 8513,
+          "document_path": "concepts/workloads/pods/downward-api.md",
+          "heading_path": "Downward API > Available fields > Information available via `resourceFieldRef` {#downwardapi-resourceFieldRef}",
+          "rrf_score": 0.027443609022556388,
+          "vector_rank": 16,
+          "keyword_rank": 10
+        },
+        {
+          "rank": 5,
+          "chunk_id": 18449,
+          "document_path": "tasks/configure-pod-container/assign-cpu-resource.md",
+          "heading_path": "Assign CPU Resources to Containers and Pods > If you do not specify a CPU limit",
+          "rrf_score": 0.02607709750566893,
+          "vector_rank": 3,
+          "keyword_rank": 38
+        }
+      ],
+      "usage": {
+        "model": "gemini-2.5-flash",
+        "input_tokens": 1424,
+        "output_tokens": 993,
+        "cost_usd": 0.0029097000000000003,
+        "latency_ms": 0.0,
+        "cached": true
+      }
+    },
+    {
+      "id": "pod-fr",
+      "lang": "fr",
+      "question": "Qu'est-ce qu'un Pod dans Kubernetes ?",
+      "answer": "Un Pod est l'unité d'exécution de base d'une application Kubernetes, la plus petite et la plus simple unité dans le modèle d'objets de Kubernetes que vous créez ou déployez [1]. Il représente des processus en cours d'exécution dans votre cluster [1].\n\nUn Pod encapsule un conteneur applicatif (ou plusieurs conteneurs), des ressources de stockage, une identité réseau unique (adresse IP), et des options qui contrôlent l'exécution des conteneurs [1]. Il représente une unité de déploiement, c'est-à-dire une instance unique d'une application dans Kubernetes [1].\n\nLes Pods peuvent exécuter un conteneur unique, agissant comme un wrapper autour de celui-ci, ce qui est le cas d'utilisation le plus courant [3]. Ils peuvent aussi exécuter plusieurs conteneurs co-localisés qui sont étroitement liés et partagent des ressources, formant une unité de service cohésive [3]. Un Pod n'est pas un processus, mais un environnement pour exécuter un conteneur [2].\n\nLes Pods sont conçus comme des entités relativement éphémères et jetables [2]. La demande de CPU pour un Pod est la somme des demandes de CPU de tous ses conteneurs, et l'ordonnancement des pods est basé sur ces demandes [5].",
+      "refused": false,
+      "prompt_version": "answer-v1",
+      "citations": [
+        {
+          "source_id": 1,
+          "chunk_id": 20996,
+          "document_path": "concepts/workloads/pods/pod-overview.md",
+          "heading_path": "Aperçu du Pod > Comprendre les Pods"
+        },
+        {
+          "source_id": 3,
+          "chunk_id": 20997,
+          "document_path": "concepts/workloads/pods/pod-overview.md",
+          "heading_path": "Aperçu du Pod > Comprendre les Pods"
+        },
+        {
+          "source_id": 2,
+          "chunk_id": 21002,
+          "document_path": "concepts/workloads/pods/pod-overview.md",
+          "heading_path": "Aperçu du Pod > Travailler avec des Pods"
+        },
+        {
+          "source_id": 5,
+          "chunk_id": 21904,
+          "document_path": "tasks/configure-pod-container/assign-cpu-resource.md",
+          "heading_path": "Allouer des ressources CPU aux conteneurs et aux pods > Spécifier une demande de CPU trop élevée pour vos nœuds."
+        }
+      ],
+      "invalid_citations": [],
+      "sources": [
+        {
+          "rank": 1,
+          "chunk_id": 20996,
+          "document_path": "concepts/workloads/pods/pod-overview.md",
+          "heading_path": "Aperçu du Pod > Comprendre les Pods",
+          "rrf_score": 0.030621785881252923,
+          "vector_rank": 2,
+          "keyword_rank": 9
+        },
+        {
+          "rank": 2,
+          "chunk_id": 21002,
+          "document_path": "concepts/workloads/pods/pod-overview.md",
+          "heading_path": "Aperçu du Pod > Travailler avec des Pods",
+          "rrf_score": 0.030158730158730156,
+          "vector_rank": 3,
+          "keyword_rank": 10
+        },
+        {
+          "rank": 3,
+          "chunk_id": 20997,
+          "document_path": "concepts/workloads/pods/pod-overview.md",
+          "heading_path": "Aperçu du Pod > Comprendre les Pods",
+          "rrf_score": 0.027912386121341344,
+          "vector_rank": 7,
+          "keyword_rank": 17
+        },
+        {
+          "rank": 4,
+          "chunk_id": 20832,
+          "document_path": "concepts/workloads/_index.md",
+          "heading_path": "Workloads",
+          "rrf_score": 0.02736726874657909,
+          "vector_rank": 27,
+          "keyword_rank": 3
+        },
+        {
+          "rank": 5,
+          "chunk_id": 21904,
+          "document_path": "tasks/configure-pod-container/assign-cpu-resource.md",
+          "heading_path": "Allouer des ressources CPU aux conteneurs et aux pods > Spécifier une demande de CPU trop élevée pour vos nœuds.",
+          "rrf_score": 0.02574682290807064,
+          "vector_rank": 23,
+          "keyword_rank": 13
+        }
+      ],
+      "usage": {
+        "model": "gemini-2.5-flash",
+        "input_tokens": 1572,
+        "output_tokens": 761,
+        "cost_usd": 0.0023741,
+        "latency_ms": 0.0,
+        "cached": true
+      }
+    },
+    {
+      "id": "out-of-scope",
+      "lang": "en",
+      "question": "What is the capital of France?",
+      "answer": "I couldn't find the answer in the documentation.",
+      "refused": true,
+      "prompt_version": "answer-v1",
+      "citations": [],
+      "invalid_citations": [],
+      "sources": [
+        {
+          "rank": 1,
+          "chunk_id": 18818,
+          "document_path": "tasks/debug/_index.md",
+          "heading_path": "Monitoring, Logging, and Debugging > Help! My question isn't covered!  I need help now! > Slack",
+          "rrf_score": 0.027526395173453996,
+          "vector_rank": 18,
+          "keyword_rank": 8
+        },
+        {
+          "rank": 2,
+          "chunk_id": 17598,
+          "document_path": "tasks/access-application-cluster/access-cluster.md",
+          "heading_path": "Accessing Clusters > Requesting redirects",
+          "rrf_score": 0.01639344262295082,
+          "vector_rank": 1,
+          "keyword_rank": null
+        },
+        {
+          "rank": 3,
+          "chunk_id": 9016,
+          "document_path": "contribute/style/style-guide.md",
+          "heading_path": "Documentation Style Guide > Documentation formatting standards > Use upper camel case for API objects",
+          "rrf_score": 0.01639344262295082,
+          "vector_rank": null,
+          "keyword_rank": 1
+        },
+        {
+          "rank": 4,
+          "chunk_id": 8066,
+          "document_path": "concepts/storage/volumes.md",
+          "heading_path": "Volumes > Types of volumes {#volume-types} > hostPath {#hostpath} > hostPath configuration example",
+          "rrf_score": 0.016129032258064516,
+          "vector_rank": 2,
+          "keyword_rank": null
+        },
+        {
+          "rank": 5,
+          "chunk_id": 9032,
+          "document_path": "contribute/style/style-guide.md",
+          "heading_path": "Documentation Style Guide > Referring to Kubernetes API resources > When to use Kubernetes API terminologies",
+          "rrf_score": 0.016129032258064516,
+          "vector_rank": null,
+          "keyword_rank": 2
+        }
+      ],
+      "usage": {
+        "model": "gemini-2.5-flash",
+        "input_tokens": 1107,
+        "output_tokens": 5,
+        "cost_usd": 0.0003446,
+        "latency_ms": 0.0,
+        "cached": true
+      }
+    }
+  ]
+}
