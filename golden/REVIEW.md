@@ -129,7 +129,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): question now refers to the Pod status, as documented, instead of kubectl describe | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): FallbackToLogsOnError: both conditions stated
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -247,7 +247,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): removed the undocumented recommendations | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): restart wording aligned with the docs
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -374,7 +374,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): added the ImagePullBackOff section; causes aligned with it
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -735,7 +735,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): added the kubectl top pod page
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -908,7 +908,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): aligned with the documented command
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -937,7 +937,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 3 (Youssef Zemzem, 2026-11-07): 'rolling updates' replaced with the documented 'declarative updates to Pods'
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1048,11 +1048,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The settings are correct for requesting five completions and a parallelism of two. However, the documentation explicitly says actual parallelism can be more or less than requested. Reword the question to ask for a requested parallelism of two, rather than guaranteeing exactly two Pods running at all times.
 
 ---
 
@@ -1120,11 +1120,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The documentation says the Job becomes eligible for deletion after the TTL expires; it does not guarantee deletion at that exact instant. Change the answer to: “Set ttlSecondsAfterFinished on the Job. The TTL controller makes it eligible for deletion after that many seconds and deletes the Job and its dependent Pods.”
 
 ---
 
@@ -1190,11 +1190,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpts establish that the default StorageClass is assigned to a PVC without storageClassName. However, dynamic provisioning also requires dynamic provisioning to be enabled, including the DefaultStorageClass admission controller. Change the answer to distinguish default StorageClass assignment from the conditions needed for dynamic provisioning.
 
 ---
 
@@ -1264,7 +1264,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1406,11 +1406,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpts explain PriorityClass values and how preemption removes lower-priority Pods to make room for a pending higher-priority Pod. However, they do not explicitly document setting priorityClassName in the Pod spec. Add the relevant Pod priority documentation showing how a Pod selects a PriorityClass.
 
 ---
 
@@ -1442,11 +1442,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt supports sidecars running concurrently with the main application and remaining active throughout the Pod lifecycle. It does not explicitly state that sidecars start before application containers. Remove that claim, or add documentation supporting the startup ordering.
 
 ---
 
@@ -1489,11 +1489,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The answer should mention the optional cloud-controller-manager, which is listed as a control-plane component in the excerpt. It should also clarify that kube-proxy is optional, rather than implying every node must run it.
 
 ---
 
@@ -1539,7 +1539,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1640,7 +1640,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
