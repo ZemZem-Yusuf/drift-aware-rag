@@ -15,6 +15,15 @@ reference answer. Used to measure retrieval (recall@k, MRR, nDCG) and, later, an
    [`REVIEW.md`](REVIEW.md) (`uv run driftrag-golden sheet` / `apply`). Only items marked
    `verified` (with the reviewer's name) count in reported numbers.
 
+### v2 (2026-11-07): growing the set for statistical power
+With 28 verified questions, only large effects could be detected (H2's +0.065 recall@5 wasn't
+significant). v2 adds 57 drafts aimed at the gaps of v1: tasks (+25), troubleshooting (+12),
+commands (+11) and French (+12). Each was drafted from sections looked up in the index, then
+**self-checked** by the drafter: every command and field name in an answer was searched for in
+the full referenced text, which caught and fixed 6 drafting errors (e.g. `kubectl exec -it`
+where the docs use `--stdin --tty`). The self-check verifies nothing; the human review does.
+Drafts are reviewed in batches (`driftrag-golden sheet --max-items 15`).
+
 ## Design choices
 - **Relevance per document + section, not per chunk.** Chunk ids change on every re-chunking or
   re-index; section paths don't. The golden set has to survive the re-indexing this project
