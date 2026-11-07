@@ -198,7 +198,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* human review (Youssef Zemzem, 2026-11-07): added the node-labels section; no kubectl command claimed | human review 2 (Youssef Zemzem, 2026-11-07): required vs preferred affinity made explicit
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -305,7 +305,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* LLM pre-review (ChatGPT, 2026-11-07): removed the unsupported comparison with Deployments | human review (Youssef Zemzem, 2026-11-07): qualified the claim about databases | human review 2 (Youssef Zemzem, 2026-11-07): removed the database generalisation; question made general; id renamed from statefulset-database
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -428,7 +428,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -655,7 +655,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -908,12 +908,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
-
+The excerpt demonstrates runAsUser at both Pod and container level, but demonstrates runAsGroup only at Pod level. Clarify this distinction or provide documentation explicitly showing container-level runAsGroup.
 ---
 
 ### `linux-capabilities`
@@ -1038,12 +1037,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
-
+The question asks how to add or remove Linux capabilities, but the reference answer only explains adding them. Include the drop field for removing capabilities, or narrow the question to adding capabilities only.
 ---
 
 ### `private-registry`
@@ -1126,7 +1124,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1280,7 +1278,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1385,7 +1383,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1482,7 +1480,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1539,7 +1537,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1596,7 +1594,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1682,7 +1680,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1734,7 +1732,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1893,7 +1891,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
