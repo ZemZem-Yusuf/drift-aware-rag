@@ -46,7 +46,9 @@ For each question below:
 4. Tick **exactly one** box (replace `[ ]` with `[x]`). If you pick *Needs changes*, write what
    to change under **Notes**.
 
-Out-of-scope questions only need a check that they really are outside the Kubernetes docs.
+**Out-of-scope questions** are tests that the system *refuses* to answer. If the question really
+is outside the Kubernetes docs, tick **Correct as written** (it stays in the set as a refusal
+test). Tick **Reject** only if it should be removed from the set.
 
 When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
