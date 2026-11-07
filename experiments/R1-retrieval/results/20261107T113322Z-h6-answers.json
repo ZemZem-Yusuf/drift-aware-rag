@@ -1,0 +1,151 @@
+{
+  "experiment": "R1-retrieval",
+  "run": "h6-answers",
+  "environment": {
+    "recorded_at": "2026-11-07T11:33:21+00:00",
+    "git": {
+      "commit": "78023e82c1c1e40e7b1287c5b8221d333194d941",
+      "dirty": true
+    },
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "packages": {
+      "drift-aware-rag": "0.0.1",
+      "litellm": "1.103.10",
+      "sentence-transformers": "6.2.0",
+      "torch": "2.15.0+cpu",
+      "sqlalchemy": "2.1.8",
+      "psycopg": "3.3.8",
+      "pgvector": "0.5.1"
+    },
+    "settings": {
+      "generator_model": "gemini/gemini-2.5-flash",
+      "fallback_model": null,
+      "llm_daily_request_limits": {
+        "gemini": 200,
+        "groq": 500
+      },
+      "gemini_key_configured": true,
+      "groq_key_configured": false
+    }
+  },
+  "config": {
+    "aliases": [
+      "active",
+      "canary"
+    ],
+    "top_k": 5
+  },
+  "results": {
+    "configmap-env": {
+      "active": {
+        "index_version": "k8s-1.33-e5",
+        "answer": "To turn every key of a ConfigMap into environment variables in a container, use the `envFrom` field in the Pod specification [2][3][5]. The `envFrom` field instructs Kubernetes to create environment variables from the sources nested within it [2]. The inner `configMapRef` refers to a ConfigMap by its name and selects all its key-value pairs [2][3]. The contents of the target ConfigMap's `Data` field will represent the key-value pairs as environment variables [3]. The key from the ConfigMap becomes the environment variable name in the Pod [5].\n\nFor example, you can create a ConfigMap like this [1]:\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: myconfigmap\ndata:\n  username: k8s-admin\n  access_level: \"1\"\n```\nThen, create the ConfigMap object [1]:\n```shell\nkubectl apply -f myconfigmap.yaml\n```\nA Pod can consume the content of the ConfigMap as environment variables [2]:\n```shell\nkubectl apply -f env-configmap.yaml\n```\nYou can then retrieve the Pod's logs to confirm the output [2]:\n```shell\nkubectl logs pod/ env-configmap\n```\nThe output will be similar to [2]:\n```console\n...\nusername: \"k8s-admin\"\naccess_level: \"1\"\n...\n```",
+        "refused": false,
+        "expected_fields": [
+          "envFrom",
+          "configMapRef"
+        ],
+        "fields_present": [
+          "envFrom",
+          "configMapRef"
+        ],
+        "citations": [
+          "concepts/configuration/configmap.md",
+          "reference/kubernetes-api/workload-resources/pod-v1.md",
+          "tasks/configure-pod-container/configure-pod-configmap.md",
+          "concepts/configuration/configmap.md"
+        ]
+      },
+      "canary": {
+        "index_version": "k8s-1.33-e5-samples",
+        "answer": "To turn every key of a ConfigMap into environment variables in a container, use `envFrom` in the Pod specification [2]. The `envFrom` field should contain a `configMapRef` that specifies the name of the ConfigMap [2][3]. The contents of the target ConfigMap's `Data` field will represent the key-value pairs as environment variables, with the ConfigMap key becoming the environment variable name in the Pod [2][3].\n\nFor example:\n```yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: dapi-test-pod\nspec:\n  containers:\n    - name: test-container\n      image: registry.k8s.io/busybox:1.27.2\n      command: [ \"/bin/sh\", \"-c\", \"env\" ]\n      envFrom:\n      - configMapRef:\n          name: special-config\n  restartPolicy: Never\n``` [2]",
+        "refused": false,
+        "expected_fields": [
+          "envFrom",
+          "configMapRef"
+        ],
+        "fields_present": [
+          "envFrom",
+          "configMapRef"
+        ],
+        "citations": [
+          "tasks/configure-pod-container/configure-pod-configmap.md",
+          "reference/kubernetes-api/workload-resources/pod-v1.md"
+        ]
+      }
+    },
+    "pdb-keep-replicas": {
+      "active": {
+        "index_version": "k8s-1.33-e5",
+        "answer": "Set a PodDisruptionBudget for the set of replicas specifying `minAvailable: 2` [1]. `kubectl drain` respects the PodDisruptionBudget you specify [1][4]. Any drains that would cause the number of healthy replicas to fall below the specified budget are blocked [1].",
+        "refused": false,
+        "expected_fields": [
+          "PodDisruptionBudget",
+          "minAvailable"
+        ],
+        "fields_present": [
+          "PodDisruptionBudget",
+          "minAvailable"
+        ],
+        "citations": [
+          "tasks/administer-cluster/safely-drain-node.md",
+          "tasks/administer-cluster/safely-drain-node.md"
+        ]
+      },
+      "canary": {
+        "index_version": "k8s-1.33-e5-samples",
+        "answer": "Set a PodDisruptionBudget for the set of replicas specifying `minAvailable: 2` [1]. `kubectl drain` respects the PodDisruptionBudget you specify [1][4]. Any drains that would cause the number of healthy replicas to fall below the specified budget are blocked [1].",
+        "refused": false,
+        "expected_fields": [
+          "PodDisruptionBudget",
+          "minAvailable"
+        ],
+        "fields_present": [
+          "PodDisruptionBudget",
+          "minAvailable"
+        ],
+        "citations": [
+          "tasks/administer-cluster/safely-drain-node.md",
+          "tasks/administer-cluster/safely-drain-node.md"
+        ]
+      }
+    },
+    "netpol-default-deny": {
+      "active": {
+        "index_version": "k8s-1.33-e5",
+        "answer": "You can create a \"default\" policy for a namespace that prevents all ingress and egress traffic by creating a NetworkPolicy in that namespace [4]. This ensures that pods not selected by any other NetworkPolicy will not be allowed ingress or egress traffic [4].",
+        "refused": false,
+        "expected_fields": [
+          "NetworkPolicy",
+          "podSelector",
+          "policyTypes"
+        ],
+        "fields_present": [
+          "NetworkPolicy"
+        ],
+        "citations": [
+          "concepts/services-networking/network-policies.md"
+        ]
+      },
+      "canary": {
+        "index_version": "k8s-1.33-e5-samples",
+        "answer": "You can create a \"default\" ingress isolation policy for a namespace by creating a NetworkPolicy that selects all pods but does not allow any ingress traffic to those pods [3]. This ensures that pods not selected by other NetworkPolicies will still be isolated for ingress [3].\n\nTo do this, create the following NetworkPolicy in that namespace:\n```yaml\n---\napiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: default-deny-ingress\nspec:\n  podSelector: {}\n  policyTypes:\n  - Ingress\n```\n[3]",
+        "refused": false,
+        "expected_fields": [
+          "NetworkPolicy",
+          "podSelector",
+          "policyTypes"
+        ],
+        "fields_present": [
+          "NetworkPolicy",
+          "podSelector",
+          "policyTypes"
+        ],
+        "citations": [
+          "concepts/services-networking/network-policies.md"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1553 @@
+{
+  "experiment": "R1-retrieval",
+  "run": "h6-code-samples",
+  "environment": {
+    "recorded_at": "2026-11-07T11:32:05+00:00",
+    "git": {
+      "commit": "883ef1839aa067d6ba6e61c9433bfc1c491f14c0",
+      "dirty": false
+    },
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "packages": {
+      "drift-aware-rag": "0.0.1",
+      "litellm": "1.103.10",
+      "sentence-transformers": "6.2.0",
+      "torch": "2.15.0+cpu",
+      "sqlalchemy": "2.1.8",
+      "psycopg": "3.3.8",
+      "pgvector": "0.5.1"
+    },
+    "settings": {
+      "generator_model": "gemini/gemini-2.5-flash",
+      "fallback_model": null,
+      "llm_daily_request_limits": {
+        "gemini": 200,
+        "groq": 500
+      },
+      "gemini_key_configured": true,
+      "groq_key_configured": false
+    },
+    "index": {
+      "id": 3,
+      "name": "k8s-1.33-e5-samples",
+      "status": "ready",
+      "embedding_model": "intfloat/multilingual-e5-small@614241f6",
+      "embedding_dim": 384,
+      "chunker_config": {
+        "version": 1,
+        "strategy": "markdown-headings",
+        "config_id": "caf19343c281",
+        "max_chars": 1200,
+        "min_chars": 80,
+        "overlap_chars": 200,
+        "preprocessing": {
+          "code_samples": true
+        }
+      },
+      "created_at": "2026-11-07T11:03:30.176163+00:00",
+      "per_lang": {
+        "en": {
+          "chunks": 14107,
+          "documents": 1444
+        },
+        "fr": {
+          "chunks": 2066,
+          "documents": 211
+        }
+      }
+    }
+  },
+  "config": {
+    "golden_file": "k8s-1.33.jsonl",
+    "golden_sha256": "d141afc7706664585bb33b5397071b4d11776ad4241db1d8b88f68addb6fb199",
+    "golden_status_counts": {
+      "verified": 32,
+      "draft": 2
+    },
+    "statuses_used": [
+      "verified"
+    ],
+    "k": 5,
+    "candidates": 50,
+    "embedder": "intfloat/multilingual-e5-small@614241f6",
+    "alias": "canary"
+  },
+  "results": {
+    "summary": {
+      "recall@5": "0.607 [0.446, 0.762] (n=28)",
+      "recall@10": "0.643 [0.482, 0.798] (n=28)",
+      "mrr": "0.530 [0.381, 0.685] (n=28)",
+      "ndcg@10": "0.505 [0.376, 0.634] (n=28)",
+      "comparison": {
+        "baseline_file": "20261107T105047Z-baseline.json",
+        "n": 28,
+        "differences": {
+          "recall_at_k": "0.000 [0.000, 0.000] (n=28)",
+          "reciprocal_rank": "0.040 [-0.007, 0.097] (n=28)",
+          "ndcg_at_k": "0.018 [-0.004, 0.044] (n=28)"
+        },
+        "improved": [],
+        "worse": []
+      },
+      "by_lang": {
+        "en": {
+          "n": 23,
+          "recall@5": "0.565 [0.384, 0.739] (n=23)"
+        },
+        "fr": {
+          "n": 5,
+          "recall@5": "0.800 [0.600, 1.000] (n=5)"
+        }
+      },
+      "by_category": {
+        "command": {
+          "n": 4,
+          "recall@5": "0.750 [0.250, 1.000] (n=4)"
+        },
+        "concept": {
+          "n": 15,
+          "recall@5": "0.656 [0.422, 0.867] (n=15)"
+        },
+        "task": {
+          "n": 7,
+          "recall@5": "0.405 [0.190, 0.643] (n=7)"
+        },
+        "troubleshooting": {
+          "n": 2,
+          "recall@5": "0.667 [0.333, 1.000] (n=2)"
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "restart-deployment",
+        "lang": "en",
+        "category": "command",
+        "recall_at_k": 0.0,
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": 0.0,
+        "first_hit_rank": null,
+        "retrieved": [
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Updating a Deployment"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Use Case"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Detailed behavior"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Updating a Deployment"
+          ],
+          [
+            "tasks/manage-kubernetes-objects/update-api-object-kubectl-patch.md",
+            "Update API Objects in Place Using kubectl patch > Use strategic merge patch to update a Deployment using the retainKeys strategy > Update an object's replica count using `kubectl patch` with `--subresource` {#scale-kubectl-patch}"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Writing a Deployment Spec > Strategy > Rolling Update Deployment"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Pod lifetime > Pods and fault recovery {#pod-fault-recovery}"
+          ],
+          [
+            "tutorials/kubernetes-basics/expose/expose-intro.md",
+            "Using a Service to Expose Your App > Services and Labels > Step 2: Using labels"
+          ],
+          [
+            "concepts/scheduling-eviction/pod-priority-preemption.md",
+            "Pod Priority and Preemption > Preemption > Limitations of preemption > Inter-Pod affinity on lower-priority Pods"
+          ],
+          [
+            "reference/command-line-tools-reference/feature-gates/DeploymentReplicaSetTerminatingReplicas.md",
+            "DeploymentReplicaSetTerminatingReplicas"
+          ]
+        ]
+      },
+      {
+        "id": "resource-limits",
+        "lang": "en",
+        "category": "task",
+        "recall_at_k": 0.3333333333333333,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 0.46927872602275644,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/configuration/manage-resources-containers.md",
+            "Resource Management for Pods and Containers > Requests and limits"
+          ],
+          [
+            "tasks/configure-pod-container/assign-pod-level-resources.md",
+            "Assign Pod-level CPU and memory resources > Create a pod with CPU requests and limits at pod-level"
+          ],
+          [
+            "concepts/security/linux-kernel-security-constraints.md",
+            "Linux kernel security constraints for Pods and containers > Kernel-level security features and privileged containers {#kernel-security-features-privileged-containers} > Privileged containers {#privileged-containers}"
+          ],
+          [
+            "concepts/workloads/pods/downward-api.md",
+            "Downward API > Available fields > Information available via `resourceFieldRef` {#downwardapi-resourceFieldRef}"
+          ],
+          [
+            "tasks/configure-pod-container/assign-cpu-resource.md",
+            "Assign CPU Resources to Containers and Pods > Specify a CPU request and a CPU limit"
+          ],
+          [
+            "concepts/configuration/manage-resources-containers.md",
+            "Resource Management for Pods and Containers > Container resources example {#example-1}"
+          ],
+          [
+            "concepts/configuration/manage-resources-containers.md",
+            "Resource Management for Pods and Containers > Requests and limits"
+          ],
+          [
+            "concepts/policy/resource-quotas.md",
+            "Resource Quotas > Requests compared to Limits {#requests-vs-limits}"
+          ],
+          [
+            "tasks/configure-pod-container/assign-cpu-resource.md",
+            "Assign CPU Resources to Containers and Pods > Specify a CPU request and a CPU limit"
+          ],
+          [
+            "tasks/configure-pod-container/resize-container-resources.md",
+            "Resize CPU and Memory Resources assigned to Containers > Clean up > For application developers"
+          ]
+        ]
+      },
+      {
+        "id": "probes-difference",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.5,
+        "ndcg_at_k": 0.6934264036172708,
+        "first_hit_rank": 2,
+        "retrieved": [
+          [
+            "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+            "Configure Liveness, Readiness and Startup Probes"
+          ],
+          [
+            "concepts/configuration/liveness-readiness-startup-probes.md",
+            "Liveness, Readiness, and Startup Probes > Liveness probe"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Container probes > Types of probe > When should you use a readiness probe?"
+          ],
+          [
+            "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+            "Configure Liveness, Readiness and Startup Probes"
+          ],
+          [
+            "tutorials/stateful-application/zookeeper.md",
+            "Running ZooKeeper, A Distributed System Coordinator > Managing the ZooKeeper process > Testing for readiness"
+          ],
+          [
+            "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+            "Configure Liveness, Readiness and Startup Probes > Define readiness probes"
+          ],
+          [
+            "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+            "Configure Liveness, Readiness and Startup Probes > Define readiness probes"
+          ],
+          [
+            "concepts/configuration/liveness-readiness-startup-probes.md",
+            "Liveness, Readiness, and Startup Probes > Startup probe"
+          ],
+          [
+            "tasks/configure-pod-container/configure-liveness-readiness-startup-probes.md",
+            "Configure Liveness, Readiness and Startup Probes > Define a TCP liveness probe"
+          ],
+          [
+            "concepts/configuration/liveness-readiness-startup-probes.md",
+            "Liveness, Readiness, and Startup Probes > Readiness probe"
+          ]
+        ]
+      },
+      {
+        "id": "configmap-env",
+        "lang": "en",
+        "category": "task",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.5,
+        "ndcg_at_k": 0.6309297535714575,
+        "first_hit_rank": 2,
+        "retrieved": [
+          [
+            "concepts/configuration/configmap.md",
+            "ConfigMaps > Using ConfigMaps > Using Configmaps as environment variables"
+          ],
+          [
+            "tasks/configure-pod-container/configure-pod-configmap.md",
+            "Configure a Pod to Use a ConfigMap > Configure all key-value pairs in a ConfigMap as container environment variables"
+          ],
+          [
+            "reference/kubernetes-api/workload-resources/pod-v1.md",
+            "Pod > Container {#Container} > Environment variables"
+          ],
+          [
+            "tasks/configure-pod-container/configure-pod-configmap.md",
+            "Configure a Pod to Use a ConfigMap > Define container environment variables using ConfigMap data > Define a container environment variable with data from a single ConfigMap"
+          ],
+          [
+            "concepts/configuration/configmap.md",
+            "ConfigMaps > ConfigMaps and Pods"
+          ],
+          [
+            "reference/kubernetes-api/workload-resources/pod-v1.md",
+            "Pod > EphemeralContainer {#EphemeralContainer} > Environment variables"
+          ],
+          [
+            "concepts/configuration/configmap.md",
+            "ConfigMaps > Using ConfigMaps > Using Configmaps as environment variables"
+          ],
+          [
+            "tasks/configure-pod-container/configure-pod-configmap.md",
+            "Configure a Pod to Use a ConfigMap > Define container environment variables using ConfigMap data > Define container environment variables with data from multiple ConfigMaps"
+          ],
+          [
+            "concepts/configuration/configmap.md",
+            "ConfigMaps > Using ConfigMaps > Using Configmaps as environment variables"
+          ],
+          [
+            "tasks/configure-pod-container/configure-pod-configmap.md",
+            "Configure a Pod to Use a ConfigMap > Optional ConfigMaps"
+          ]
+        ]
+      },
+      {
+        "id": "secret-encryption",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.25,
+        "ndcg_at_k": 0.43067655807339306,
+        "first_hit_rank": 4,
+        "retrieved": [
+          [
+            "tasks/administer-cluster/kms-provider.md",
+            "Using a KMS provider for data encryption > Verifying that the data is encrypted"
+          ],
+          [
+            "tasks/administer-cluster/encrypt-data.md",
+            "Encrypting Confidential Data at Rest"
+          ],
+          [
+            "tasks/administer-cluster/decrypt-data.md",
+            "Decrypt Confidential Data that is Already Encrypted at Rest"
+          ],
+          [
+            "concepts/configuration/secret.md",
+            "Secrets > Information security for Secrets"
+          ],
+          [
+            "concepts/storage/volumes.md",
+            "Volumes > The mount into the container is read-only. > Out-of-tree volume plugins > csi"
+          ],
+          [
+            "tasks/administer-cluster/encrypt-data.md",
+            "Encrypting Confidential Data at Rest > Do not use this for your own cluster! > Encrypt your data {#encrypting-your-data} > Verify that newly written data is encrypted {#verifying-that-data-is-encrypted}"
+          ],
+          [
+            "concepts/configuration/secret.md",
+            "Secrets > Types of Secret {#secret-types} > Opaque Secrets"
+          ],
+          [
+            "tasks/administer-cluster/securing-a-cluster.md",
+            "Securing a Cluster > Protecting cluster components from compromise > Encrypt secrets at rest"
+          ],
+          [
+            "concepts/configuration/secret.md",
+            "Secrets"
+          ],
+          [
+            "reference/kubectl/generated/kubectl_create/kubectl_create_secret_generic.md",
+            "kubectl create secret generic"
+          ]
+        ]
+      },
+      {
+        "id": "scale-deployment",
+        "lang": "en",
+        "category": "command",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.3333333333333333,
+        "ndcg_at_k": 0.5,
+        "first_hit_rank": 3,
+        "retrieved": [
+          [
+            "tutorials/kubernetes-basics/scale/scale-intro.md",
+            "Running Multiple Instances of Your App > Scaling overview > Scaling a Deployment"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Updating a Deployment > Rollover (aka multiple updates in-flight)"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Scaling a Deployment > Proportional scaling"
+          ],
+          [
+            "tasks/run-application/horizontal-pod-autoscale.md",
+            "Horizontal Pod Autoscaling > Configurable scaling behavior > Scaling policies"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Creating a Deployment"
+          ],
+          [
+            "tutorials/kubernetes-basics/scale/scale-intro.md",
+            "Running Multiple Instances of Your App > Scaling overview > Scaling a Deployment"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Rolling Back a Deployment"
+          ],
+          [
+            "tasks/administer-cluster/node-overprovisioning.md",
+            "Overprovision Node Capacity For A Cluster > Set the desired replica count > Calculate the total reserved resources"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Rolling Back a Deployment > Rolling Back to a Previous Revision"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Use Case"
+          ]
+        ]
+      },
+      {
+        "id": "rollback-deployment",
+        "lang": "en",
+        "category": "task",
+        "recall_at_k": 0.5,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 0.6131471927654584,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Rolling Back a Deployment > Rolling Back to a Previous Revision"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Rolling Back a Deployment"
+          ],
+          [
+            "tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning.md",
+            "Versions in CustomResourceDefinitions > Overview"
+          ],
+          [
+            "tutorials/kubernetes-basics/update/update-intro.md",
+            "Performing a Rolling Update > Rolling updates overview > Roll back an update"
+          ],
+          [
+            "tutorials/kubernetes-basics/update/update-intro.md",
+            "Performing a Rolling Update > Rolling updates overview > Update the version of the app"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Updating a Deployment"
+          ],
+          [
+            "tasks/administer-cluster/kubeadm/kubeadm-upgrade.md",
+            "Upgrading kubeadm clusters > Upgrading control plane nodes > Uncordon the node"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Rolling Back a Deployment > Rolling Back to a Previous Revision"
+          ],
+          [
+            "contribute/generate-ref-docs/kubectl.md",
+            "Generating Reference Documentation for kubectl Commands > Cherry pick your change into a release branch"
+          ],
+          [
+            "tasks/administer-cluster/migrating-from-dockershim/troubleshooting-cni-plugin-related-errors.md",
+            "Troubleshooting CNI plugin-related errors > About the \"Incompatible CNI versions\" and \"Failed to destroy network for sandbox\" errors > Updating your CNI plugins and CNI config files"
+          ]
+        ]
+      },
+      {
+        "id": "service-types",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 1.0,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/services-networking/service.md",
+            "Service > Service type  {#publishing-services-service-types}"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Service type  {#publishing-services-service-types} > `type: LoadBalancer` {#loadbalancer}"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Service type  {#publishing-services-service-types} > `type: NodePort` {#type-nodeport}"
+          ],
+          [
+            "tutorials/kubernetes-basics/expose/expose-intro.md",
+            "Using a Service to Expose Your App > Overview of Kubernetes Services"
+          ],
+          [
+            "reference/kubernetes-api/service-resources/service-v1.md",
+            "Service > ServiceSpec {#ServiceSpec}"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Service type  {#publishing-services-service-types} > `type: LoadBalancer` {#loadbalancer} > Disabling load balancer NodePort allocation {#load-balancer-nodeport-allocation}"
+          ],
+          [
+            "reference/kubernetes-api/service-resources/service-v1.md",
+            "Service > ServiceSpec {#ServiceSpec}"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Headless Services"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Service type  {#publishing-services-service-types} > `type: NodePort` {#type-nodeport} > Custom IP address configuration for `type: NodePort` Services {#service-nodeport-custom-listen-address}"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Service type  {#publishing-services-service-types} > `type: LoadBalancer` {#loadbalancer} > Specifying class of load balancer implementation {#load-balancer-class}"
+          ]
+        ]
+      },
+      {
+        "id": "pod-pending",
+        "lang": "en",
+        "category": "troubleshooting",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.25,
+        "ndcg_at_k": 0.43067655807339306,
+        "first_hit_rank": 4,
+        "retrieved": [
+          [
+            "concepts/workloads/pods/disruptions.md",
+            "Disruptions > Pod disruption conditions {#pod-disruption-conditions}"
+          ],
+          [
+            "concepts/scheduling-eviction/pod-priority-preemption.md",
+            "Pod Priority and Preemption > Troubleshooting > Pods are preempted unnecessarily"
+          ],
+          [
+            "concepts/scheduling-eviction/pod-priority-preemption.md",
+            "Pod Priority and Preemption > Preemption > Limitations of preemption > Inter-Pod affinity on lower-priority Pods"
+          ],
+          [
+            "tasks/debug/debug-application/debug-pods.md",
+            "Debug Pods > Diagnosing the problem > Debugging Pods > My pod stays pending"
+          ],
+          [
+            "tasks/debug/debug-application/debug-pods.md",
+            "Debug Pods > Diagnosing the problem > Debugging Pods > My pod stays waiting"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Pod lifetime > Pods and fault recovery {#pod-fault-recovery}"
+          ],
+          [
+            "reference/command-line-tools-reference/feature-gates/ExperimentalCriticalPodAnnotation.md",
+            "ExperimentalCriticalPodAnnotation"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Termination of Pods {#pod-termination} > Garbage collection of Pods {#pod-garbage-collection}"
+          ],
+          [
+            "reference/access-authn-authz/admission-controllers.md",
+            "Admission Control in Kubernetes > What does each admission controller do? > TaintNodesByCondition {#taintnodesbycondition}"
+          ],
+          [
+            "reference/command-line-tools-reference/feature-gates/ProbeTerminationGracePeriod.md",
+            "ProbeTerminationGracePeriod"
+          ]
+        ]
+      },
+      {
+        "id": "crashloop",
+        "lang": "en",
+        "category": "troubleshooting",
+        "recall_at_k": 0.3333333333333333,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 0.46927872602275644,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > How Pods handle problems with containers {#container-restarts}"
+          ],
+          [
+            "reference/kubernetes-api/workload-resources/pod-v1.md",
+            "Pod > Container {#Container} > Lifecycle"
+          ],
+          [
+            "tasks/debug/debug-application/debug-running-pod.md",
+            "Debug Running Pods > Using `kubectl describe pod` to fetch details about pods"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > How Pods handle problems with containers {#container-restarts}"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Detailed behavior > Pod restart reasons"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Detailed behavior"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > How Pods handle problems with containers {#container-restarts} > Configurable container restart delay"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Pod phase"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > How Pods handle problems with containers {#container-restarts}"
+          ],
+          [
+            "concepts/workloads/pods/sidecar-containers.md",
+            "Sidecar Containers > Sidecar containers in Kubernetes {#pod-sidecar-containers}"
+          ]
+        ]
+      },
+      {
+        "id": "pvc-request-storage",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 0.0,
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": 0.0,
+        "first_hit_rank": null,
+        "retrieved": [
+          [
+            "concepts/configuration/manage-resources-containers.md",
+            "Resource Management for Pods and Containers > Local ephemeral storage"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Pod lifetime"
+          ],
+          [
+            "concepts/scheduling-eviction/node-pressure-eviction.md",
+            "Node-pressure Eviction > Node conditions {#node-conditions} > Pod selection for kubelet eviction"
+          ],
+          [
+            "concepts/workloads/pods/_index.md",
+            "Pods > Resource sharing and communication > Storage in Pods {#pod-storage}"
+          ],
+          [
+            "concepts/architecture/self-healing.md",
+            "Kubernetes Self-Healing > Self-Healing capabilities {#self-healing-capabilities}"
+          ],
+          [
+            "concepts/configuration/manage-resources-containers.md",
+            "Resource Management for Pods and Containers > Local ephemeral storage > Ephemeral storage consumption management {#resource-emphemeralstorage-consumption}"
+          ],
+          [
+            "concepts/storage/persistent-volumes.md",
+            "Persistent Volumes > Introduction"
+          ],
+          [
+            "concepts/storage/ephemeral-volumes.md",
+            "Ephemeral Volumes > Lifecycle and PersistentVolumeClaim"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Pod lifetime > Pods and fault recovery {#pod-fault-recovery}"
+          ],
+          [
+            "concepts/storage/ephemeral-volumes.md",
+            "Ephemeral Volumes > Lifecycle and PersistentVolumeClaim"
+          ]
+        ]
+      },
+      {
+        "id": "namespaces-when",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 1.0,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/overview/working-with-objects/namespaces.md",
+            "Namespaces > When to Use Multiple Namespaces"
+          ],
+          [
+            "tasks/administer-cluster/namespaces.md",
+            "Share a Cluster with Namespaces > Understanding the motivation for using namespaces"
+          ],
+          [
+            "tasks/administer-cluster/namespaces.md",
+            "Share a Cluster with Namespaces > Viewing namespaces"
+          ],
+          [
+            "concepts/overview/working-with-objects/namespaces.md",
+            "Namespaces > Initial namespaces"
+          ],
+          [
+            "reference/kubectl/_index.md",
+            "Command line tool (kubectl) > In-cluster authentication and namespace overrides"
+          ],
+          [
+            "concepts/security/multi-tenancy.md",
+            "Multi-tenancy > Implementations > Namespace per tenant"
+          ],
+          [
+            "concepts/services-networking/ingress.md",
+            "Ingress > Ingress class > IngressClass scope"
+          ],
+          [
+            "tasks/administer-cluster/namespaces.md",
+            "Share a Cluster with Namespaces > Subdividing your cluster using Kubernetes namespaces"
+          ],
+          [
+            "tasks/administer-cluster/namespaces.md",
+            "Share a Cluster with Namespaces > Subdividing your cluster using Kubernetes namespaces > Create new namespaces"
+          ],
+          [
+            "concepts/security/multi-tenancy.md",
+            "Multi-tenancy > Control plane isolation > Namespaces"
+          ]
+        ]
+      },
+      {
+        "id": "taint-dedicated-node",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 0.0,
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": 0.0,
+        "first_hit_rank": null,
+        "retrieved": [
+          [
+            "concepts/architecture/nodes.md",
+            "Nodes > Management > Manual Node administration"
+          ],
+          [
+            "concepts/scheduling-eviction/pod-priority-preemption.md",
+            "Pod Priority and Preemption > Preemption > Limitations of preemption > Inter-Pod affinity on lower-priority Pods"
+          ],
+          [
+            "concepts/containers/runtime-class.md",
+            "Runtime Class > Scheduling"
+          ],
+          [
+            "concepts/scheduling-eviction/pod-priority-preemption.md",
+            "Pod Priority and Preemption > Preemption > User exposed information"
+          ],
+          [
+            "concepts/scheduling-eviction/pod-priority-preemption.md",
+            "Pod Priority and Preemption > Preemption > Limitations of preemption > Cross node preemption"
+          ],
+          [
+            "concepts/scheduling-eviction/assign-pod-node.md",
+            "Assigning Pods to Nodes"
+          ],
+          [
+            "concepts/cluster-administration/node-autoscaling.md",
+            "Node Autoscaling > Node provisioning {#provisioning} > Pod scheduling constraints {#provisioning-pod-constraints}"
+          ],
+          [
+            "concepts/scheduling-eviction/dynamic-resource-allocation.md",
+            "Dynamic Resource Allocation > Pre-scheduled Pods"
+          ],
+          [
+            "concepts/cluster-administration/node-shutdown.md",
+            "Node Shutdowns > Graceful node shutdown {#graceful-node-shutdown}"
+          ],
+          [
+            "concepts/scheduling-eviction/assign-pod-node.md",
+            "Assigning Pods to Nodes > Affinity and anti-affinity > Node affinity"
+          ]
+        ]
+      },
+      {
+        "id": "hpa-cpu",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 0.0,
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": 0.0,
+        "first_hit_rank": null,
+        "retrieved": [
+          [
+            "tasks/configure-pod-container/assign-cpu-resource.md",
+            "Assign CPU Resources to Containers and Pods > Specify a CPU request and a CPU limit"
+          ],
+          [
+            "tasks/configure-pod-container/assign-pod-level-resources.md",
+            "Assign Pod-level CPU and memory resources > Create a pod with CPU requests and limits at pod-level"
+          ],
+          [
+            "tasks/administer-cluster/manage-resources/cpu-constraint-namespace.md",
+            "Configure Minimum and Maximum CPU Constraints for a Namespace > Create a LimitRange and a Pod"
+          ],
+          [
+            "tasks/configure-pod-container/assign-cpu-resource.md",
+            "Assign CPU Resources to Containers and Pods > Specify a CPU request that is too big for your Nodes"
+          ],
+          [
+            "tasks/configure-pod-container/assign-memory-resource.md",
+            "Assign Memory Resources to Containers and Pods > Clean up > For app developers"
+          ],
+          [
+            "tasks/configure-pod-container/assign-cpu-resource.md",
+            "Assign CPU Resources to Containers and Pods > Motivation for CPU requests and limits"
+          ],
+          [
+            "tasks/configure-pod-container/assign-pod-level-resources.md",
+            "Assign Pod-level CPU and memory resources > Create a pod with CPU requests and limits at pod-level"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Deployments > Updating a Deployment"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Pod Lifecycle > Pod lifetime > Pods and fault recovery {#pod-fault-recovery}"
+          ],
+          [
+            "tasks/configure-pod-container/assign-cpu-resource.md",
+            "Assign CPU Resources to Containers and Pods > Clean up > For app developers"
+          ]
+        ]
+      },
+      {
+        "id": "ingress-vs-service",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 0.3333333333333333,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 0.46927872602275644,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/services-networking/ingress.md",
+            "Ingress > What is Ingress?"
+          ],
+          [
+            "tutorials/kubernetes-basics/expose/expose-intro.md",
+            "Using a Service to Expose Your App > Overview of Kubernetes Services"
+          ],
+          [
+            "reference/kubernetes-api/service-resources/ingress-v1.md",
+            "Ingress > IngressBackend {#IngressBackend}"
+          ],
+          [
+            "concepts/services-networking/ingress.md",
+            "Ingress > Types of Ingress > Ingress backed by a single Service {#single-service-ingress}"
+          ],
+          [
+            "concepts/services-networking/ingress-controllers.md",
+            "Ingress Controllers > Additional controllers"
+          ],
+          [
+            "concepts/services-networking/ingress.md",
+            "Ingress > The Ingress resource"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Services in Kubernetes"
+          ],
+          [
+            "concepts/services-networking/ingress.md",
+            "Ingress > Prerequisites"
+          ],
+          [
+            "reference/kubernetes-api/service-resources/ingress-v1.md",
+            "Ingress > IngressSpec {#IngressSpec}"
+          ],
+          [
+            "tasks/access-application-cluster/ingress-minikube.md",
+            "Set up Ingress on Minikube with the NGINX Ingress Controller"
+          ]
+        ]
+      },
+      {
+        "id": "netpol-default-deny",
+        "lang": "en",
+        "category": "task",
+        "recall_at_k": 0.5,
+        "reciprocal_rank": 0.3333333333333333,
+        "ndcg_at_k": 0.3065735963827292,
+        "first_hit_rank": 3,
+        "retrieved": [
+          [
+            "tasks/administer-cluster/manage-resources/memory-default-namespace.md",
+            "Configure Default Memory Requests and Limits for a Namespace > Motivation for default memory limits and requests"
+          ],
+          [
+            "concepts/policy/resource-quotas.md",
+            "Resource Quotas > Quota Scopes > Cross-namespace Pod Affinity Quota"
+          ],
+          [
+            "concepts/services-networking/network-policies.md",
+            "Network Policies > Default policies > Default deny all ingress traffic"
+          ],
+          [
+            "reference/kubectl/generated/kubectl_top/kubectl_top_pod.md",
+            "kubectl top pod"
+          ],
+          [
+            "concepts/services-networking/network-policies.md",
+            "Network Policies > Default policies > Default deny all ingress and all egress traffic"
+          ],
+          [
+            "reference/kubectl/_index.md",
+            "Command line tool (kubectl) > In-cluster authentication and namespace overrides"
+          ],
+          [
+            "concepts/services-networking/dns-pod-service.md",
+            "DNS for Services and Pods > Pods > Pod's hostname and subdomain fields"
+          ],
+          [
+            "concepts/services-networking/network-policies.md",
+            "Network Policies > Default policies"
+          ],
+          [
+            "concepts/services-networking/network-policies.md",
+            "Network Policies > Default policies > Default deny all egress traffic"
+          ],
+          [
+            "reference/kubectl/quick-reference.md",
+            "kubectl Quick Reference > Delete all pods matching the awk pattern1 or pattern2"
+          ]
+        ]
+      },
+      {
+        "id": "daemonset-agent",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 0.0,
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": 0.0,
+        "first_hit_rank": null,
+        "retrieved": [
+          [
+            "concepts/scheduling-eviction/scheduler-perf-tuning.md",
+            "Scheduler Performance Tuning > How the scheduler iterates over Nodes"
+          ],
+          [
+            "concepts/cluster-administration/logging.md",
+            "Logging Architecture > Cluster-level logging architectures > Using a node logging agent"
+          ],
+          [
+            "tasks/run-application/run-replicated-stateful-application.md",
+            "Run a Replicated Stateful Application > Simulate Pod and Node failure {#simulate-pod-and-node-downtime} > Drain a Node"
+          ],
+          [
+            "concepts/cluster-administration/logging.md",
+            "Logging Architecture > System component logs > Log locations {#log-location-node}"
+          ],
+          [
+            "tasks/network/validate-dual-stack.md",
+            "Validate IPv4/IPv6 dual-stack > Validate addressing > Validate node addressing"
+          ],
+          [
+            "tasks/access-application-cluster/service-access-application-cluster.md",
+            "Use a Service to Access an Application in a Cluster > Creating a service for an application running in two pods"
+          ],
+          [
+            "tasks/administer-cluster/kubeadm/configure-cgroup-driver.md",
+            "Configuring a cgroup driver > Migrating to the `systemd` driver > Update the cgroup driver on all nodes"
+          ],
+          [
+            "tasks/manage-daemon/create-daemon-set.md",
+            "Building a Basic DaemonSet > Define the DaemonSet"
+          ],
+          [
+            "concepts/architecture/nodes.md",
+            "Nodes > Management > Manual Node administration"
+          ],
+          [
+            "concepts/windows/intro.md",
+            "Windows containers in Kubernetes > Container runtimes {#container-runtime}"
+          ]
+        ]
+      },
+      {
+        "id": "cronjob-nightly",
+        "lang": "en",
+        "category": "task",
+        "recall_at_k": 0.0,
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": 0.0,
+        "first_hit_rank": null,
+        "retrieved": [
+          [
+            "tasks/job/coarse-parallel-processing-work-queue.md",
+            "Coarse Parallel Processing Using a Work Queue > Running the Job"
+          ],
+          [
+            "concepts/workloads/controllers/ttlafterfinished.md",
+            "Automatic Cleanup for Finished Jobs > Cleanup for finished Jobs"
+          ],
+          [
+            "concepts/workloads/controllers/job.md",
+            "Jobs"
+          ],
+          [
+            "concepts/workloads/controllers/job.md",
+            "Jobs > Writing a Job spec > Parallel execution for Jobs {#parallel-jobs}"
+          ],
+          [
+            "concepts/workloads/controllers/job.md",
+            "Jobs > Alternatives > Single Job starts controller Pod"
+          ],
+          [
+            "concepts/workloads/controllers/cron-jobs.md",
+            "CronJob > Writing a CronJob spec > Concurrency policy"
+          ],
+          [
+            "reference/glossary/cronjob.md",
+            "CronJob"
+          ],
+          [
+            "concepts/workloads/controllers/job.md",
+            "Jobs > Handling Pod and container failures > Backoff limit per index {#backoff-limit-per-index}"
+          ],
+          [
+            "concepts/workloads/controllers/cron-jobs.md",
+            "CronJob > CronJob limitations {#cron-job-limitations} > Job creation"
+          ],
+          [
+            "concepts/workloads/controllers/job.md",
+            "Jobs > Job termination and cleanup > Termination of Job pods"
+          ]
+        ]
+      },
+      {
+        "id": "rbac-role-clusterrole",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 1.0,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > API objects {#api-overview} > Role and ClusterRole"
+          ],
+          [
+            "reference/kubernetes-api/authorization-resources/cluster-role-v1.md",
+            "ClusterRole > ClusterRole {#ClusterRole}"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > API objects {#api-overview} > Role and ClusterRole > ClusterRole example"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > Privilege escalation prevention and bootstrapping > Restrictions on role creation or update"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > Default roles and role bindings > User-facing roles"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > API objects {#api-overview} > RoleBinding and ClusterRoleBinding"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > Privilege escalation prevention and bootstrapping > Restrictions on role binding creation or update"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > Default roles and role bindings > User-facing roles"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > API objects {#api-overview} > Aggregated ClusterRoles"
+          ],
+          [
+            "reference/access-authn-authz/rbac.md",
+            "Using RBAC Authorization > API objects {#api-overview} > RoleBinding and ClusterRoleBinding > RoleBinding examples {#rolebinding-example}"
+          ]
+        ]
+      },
+      {
+        "id": "drain-node",
+        "lang": "en",
+        "category": "command",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.5,
+        "ndcg_at_k": 0.6309297535714575,
+        "first_hit_rank": 2,
+        "retrieved": [
+          [
+            "concepts/architecture/nodes.md",
+            "Nodes > Node controller"
+          ],
+          [
+            "tasks/administer-cluster/safely-drain-node.md",
+            "Safely Drain a Node > Use `kubectl drain` to remove a node from service"
+          ],
+          [
+            "concepts/cluster-administration/node-shutdown.md",
+            "Node Shutdowns > Non-graceful node shutdown handling {#non-graceful-node-shutdown}"
+          ],
+          [
+            "concepts/architecture/cloud-controller.md",
+            "Cloud Controller Manager > Cloud controller manager functions {#functions-of-the-ccm} > Node controller"
+          ],
+          [
+            "concepts/architecture/nodes.md",
+            "Nodes > Management > Manual Node administration"
+          ],
+          [
+            "concepts/scheduling-eviction/taint-and-toleration.md",
+            "Taints and Tolerations > Taint based Evictions"
+          ],
+          [
+            "tutorials/configuration/pod-sidecar-containers.md",
+            "Adopting Sidecar Containers > Adopting built-in sidecar containers > Automatic injection of sidecars"
+          ],
+          [
+            "concepts/scheduling-eviction/scheduler-perf-tuning.md",
+            "Scheduler Performance Tuning > How the scheduler iterates over Nodes"
+          ],
+          [
+            "tasks/administer-cluster/kubeadm/kubeadm-upgrade.md",
+            "Upgrading kubeadm clusters > Upgrading control plane nodes > Drain the node"
+          ],
+          [
+            "tasks/administer-cluster/kubeadm/upgrading-linux-nodes.md",
+            "Upgrading Linux nodes > Upgrading worker nodes > Drain the node"
+          ]
+        ]
+      },
+      {
+        "id": "init-container-setup",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.3333333333333333,
+        "ndcg_at_k": 0.5,
+        "first_hit_rank": 3,
+        "retrieved": [
+          [
+            "concepts/workloads/pods/_index.md",
+            "Pods > Pods with multiple containers {#how-pods-manage-multiple-containers}"
+          ],
+          [
+            "reference/glossary/init-container.md",
+            "Init Container"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Using init containers"
+          ],
+          [
+            "concepts/workloads/pods/sidecar-containers.md",
+            "Sidecar Containers > Sidecar containers and Pod lifecycle"
+          ],
+          [
+            "reference/kubernetes-api/workload-resources/pod-v1.md",
+            "Pod > Container {#Container} > Lifecycle"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Understanding init containers > Differences from regular containers"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Understanding init containers"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Detailed behavior"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Understanding init containers > Differences from sidecar containers"
+          ],
+          [
+            "reference/kubernetes-api/workload-resources/pod-v1.md",
+            "Pod > PodStatus {#PodStatus}"
+          ]
+        ]
+      },
+      {
+        "id": "image-pull-policy",
+        "lang": "en",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 1.0,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/containers/images.md",
+            "Images > Updating images > Image pull policy"
+          ],
+          [
+            "concepts/containers/images.md",
+            "Images > Serial and parallel image pulls"
+          ],
+          [
+            "reference/node/kubelet-files.md",
+            "Local Files And Paths Used By The Kubelet > State > Image Pull Records"
+          ],
+          [
+            "reference/config-api/kubelet-config.v1.md",
+            "Kubelet Configuration (v1) > `CredentialProvider`     {#kubelet-config-k8s-io-v1-CredentialProvider}"
+          ],
+          [
+            "concepts/containers/images.md",
+            "Images > Using a private registry > Pre-pulled images"
+          ],
+          [
+            "concepts/containers/images.md",
+            "Images > Using a private registry > Pre-pulled images > Ensure image pull credential verification {#ensureimagepullcredentialverification}"
+          ],
+          [
+            "concepts/storage/volumes.md",
+            "Volumes > The mount into the container is read-only. > image"
+          ],
+          [
+            "concepts/containers/images.md",
+            "Images > Serial and parallel image pulls"
+          ],
+          [
+            "concepts/containers/images.md",
+            "Images > Serial and parallel image pulls > Maximum parallel image pulls"
+          ],
+          [
+            "concepts/containers/images.md",
+            "Images > Using a private registry > Pre-pulled images > Ensure image pull credential verification {#ensureimagepullcredentialverification}"
+          ]
+        ]
+      },
+      {
+        "id": "pdb-keep-replicas",
+        "lang": "en",
+        "category": "task",
+        "recall_at_k": 0.0,
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": 0.0,
+        "first_hit_rank": null,
+        "retrieved": [
+          [
+            "tasks/administer-cluster/safely-drain-node.md",
+            "Safely Drain a Node > Draining multiple nodes in parallel"
+          ],
+          [
+            "concepts/architecture/nodes.md",
+            "Nodes > Node controller"
+          ],
+          [
+            "tasks/run-application/run-replicated-stateful-application.md",
+            "Run a Replicated Stateful Application > Simulate Pod and Node failure {#simulate-pod-and-node-downtime} > Drain a Node"
+          ],
+          [
+            "tasks/administer-cluster/safely-drain-node.md",
+            "Safely Drain a Node > Use `kubectl drain` to remove a node from service"
+          ],
+          [
+            "setup/production-environment/_index.md",
+            "Production environment > Production cluster setup > Production worker nodes"
+          ],
+          [
+            "tutorials/configuration/pod-sidecar-containers.md",
+            "Adopting Sidecar Containers > Adopting built-in sidecar containers > Automatic injection of sidecars"
+          ],
+          [
+            "concepts/scheduling-eviction/scheduler-perf-tuning.md",
+            "Scheduler Performance Tuning > How the scheduler iterates over Nodes"
+          ],
+          [
+            "setup/production-environment/container-runtimes.md",
+            "Container Runtimes > cgroup drivers > systemd cgroup driver {#systemd-cgroup-driver}"
+          ],
+          [
+            "concepts/architecture/nodes.md",
+            "Nodes > Management > Manual Node administration"
+          ],
+          [
+            "concepts/scheduling-eviction/taint-and-toleration.md",
+            "Taints and Tolerations > Taint based Evictions"
+          ]
+        ]
+      },
+      {
+        "id": "fr-pod-multi-container",
+        "lang": "fr",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 1.0,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/workloads/pods/pod-overview.md",
+            "Aperçu du Pod > Comprendre les Pods > Comment les Pods gèrent plusieurs conteneurs"
+          ],
+          [
+            "concepts/workloads/pods/pod-overview.md",
+            "Aperçu du Pod > Comprendre les Pods"
+          ],
+          [
+            "concepts/workloads/pods/pod-overview.md",
+            "Aperçu du Pod > Comprendre les Pods"
+          ],
+          [
+            "concepts/workloads/pods/pod.md",
+            "Pods > Qu'est-ce qu'un pod ?"
+          ],
+          [
+            "concepts/workloads/pods/pod-overview.md",
+            "Aperçu du Pod > Travailler avec des Pods"
+          ],
+          [
+            "concepts/configuration/secret.md",
+            "Secrets > Propriétés de sécurité > Protections"
+          ],
+          [
+            "tasks/configure-pod-container/assign-cpu-resource.md",
+            "Allouer des ressources CPU aux conteneurs et aux pods > Spécifier une demande de CPU trop élevée pour vos nœuds."
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Cycle de vie d'un Pod > Phase du Pod"
+          ],
+          [
+            "concepts/workloads/pods/pod-lifecycle.md",
+            "Cycle de vie d'un Pod > Exemples > Exemples d'états"
+          ],
+          [
+            "concepts/workloads/pods/init-containers.md",
+            "Init Containers > Comprendre les init containers"
+          ]
+        ]
+      },
+      {
+        "id": "fr-rollback",
+        "lang": "fr",
+        "category": "task",
+        "recall_at_k": 0.5,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 0.6131471927654584,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Annulation d'un déploiement > Revenir à une révision précédente"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Annulation d'un déploiement"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Cas d'utilisation"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Statut de déploiement > Agir sur un déploiement échoué"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Statut de déploiement > Déploiement échoué"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Écriture d'une spécification de déploiement > Limite de l'historique des révisions"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Mise à jour d'un déploiement > Rollover (alias plusieurs mises à jour en vol) {#rollover}"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Statut de déploiement > Progression du déploiement"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Pause et reprise d'un déploiement"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Mise à jour d'un déploiement"
+          ]
+        ]
+      },
+      {
+        "id": "fr-scale",
+        "lang": "fr",
+        "category": "command",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 0.3333333333333333,
+        "ndcg_at_k": 0.5,
+        "first_hit_rank": 3,
+        "retrieved": [
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Cas d'utilisation"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Création d'un déploiement"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Mise à l'échelle d'un déploiement > Mise à l'échelle proportionnelle"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Annulation d'un déploiement"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Écriture d'une spécification de déploiement > Limite de l'historique des révisions"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Mise à l'échelle d'un déploiement > Mise à l'échelle proportionnelle"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Annulation d'un déploiement"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Mise à jour d'un déploiement > Rollover (alias plusieurs mises à jour en vol) {#rollover}"
+          ],
+          [
+            "concepts/workloads/controllers/deployment.md",
+            "Déploiements > Mise à jour d'un déploiement"
+          ]
+        ]
+      },
+      {
+        "id": "fr-service-types",
+        "lang": "fr",
+        "category": "concept",
+        "recall_at_k": 1.0,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": 1.0,
+        "first_hit_rank": 1,
+        "retrieved": [
+          [
+            "concepts/services-networking/service.md",
+            "Service > Services de publication (ServiceTypes) {#publishing-services-service-types}"
+          ],
+          [
+            "tasks/access-application-cluster/web-ui-dashboard.md",
+            "Tableau de bord (Dashboard) > Déploiement d'applications conteneurisées > Spécifier les détails de l'application"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Services de publication (ServiceTypes) {#publishing-services-service-types}"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Définition d'un service > Services sans sélecteurs"
+          ],
+          [
+            "tasks/access-application-cluster/service-access-application-cluster.md",
+            "Utiliser un Service pour accéder à une application dans un cluster"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Services de publication (ServiceTypes) {#publishing-services-service-types}"
+          ],
+          [
+            "tasks/access-application-cluster/service-access-application-cluster.md",
+            "Utiliser un Service pour accéder à une application dans un cluster > Utilisation d'un fichier de configuration de service"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Services de publication (ServiceTypes) {#publishing-services-service-types} > Type ExternalName {#externalname}"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Découvrir les services > DNS"
+          ],
+          [
+            "concepts/services-networking/service.md",
+            "Service > Services de publication (ServiceTypes) {#publishing-services-service-types} > IP externes"
+          ]
+        ]
+      },
+      {
+        "id": "fr-labels-selectors",
+        "lang": "fr",
+        "category": "concept",
+        "recall_at_k": 0.5,
+        "reciprocal_rank": 0.5,
+        "ndcg_at_k": 0.38685280723454163,
+        "first_hit_rank": 2,
+        "retrieved": [
+          [
+            "concepts/overview/working-with-objects/common-labels.md",
+            "labels recommandées"
+          ],
+          [
+            "concepts/overview/working-with-objects/labels.md",
+            "Labels et sélecteurs > Sélecteurs de labels"
+          ],
+          [
+            "concepts/overview/working-with-objects/finalizers.md",
+            "Finalisateurs > Références de propriétaire, labels et finalisateurs {#owners-labels-finalizers}"
+          ],
+          [
+            "concepts/overview/working-with-objects/labels.md",
+            "Labels et sélecteurs"
+          ],
+          [
+            "concepts/overview/working-with-objects/labels.md",
+            "Labels et sélecteurs > Utilisation efficace des labels"
+          ],
+          [
+            "concepts/cluster-administration/cluster-administration-overview.md",
+            "Vue d'ensemble de l'administration d'un cluster > Sécuriser un cluster"
+          ],
+          [
+            "concepts/overview/working-with-objects/labels.md",
+            "Labels et sélecteurs > Syntaxe et jeu de caractères"
+          ],
+          [
+            "concepts/overview/working-with-objects/annotations.md",
+            "Annotations > Attacher des métadonnées aux objets"
+          ],
+          [
+            "concepts/services-networking/endpoint-slices.md",
+            "EndpointSlices > Ressource pour EndpointSlice {#endpointslice-resource} > Topologie"
+          ],
+          [
+            "tasks/run-application/horizontal-pod-autoscale-walkthrough.md",
+            "Découverte de l'HorizontalPodAutoscaler > L'auto-ajustement basé sur des métriques multiples ou personnalisées > Auto-ajustement sur des métriques plus spécifiques"
+          ]
+        ]
+      }
+    ]
+  }
+}

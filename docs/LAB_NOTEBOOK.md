@@ -63,7 +63,7 @@ Don't tune by intuition. Next: build the **golden set** (~50 questions with know
 
 ### Golden set pre-review and a corpus gap
 - A second model (ChatGPT) pre-reviewed the drafts with the rule "every claim must be supported by the referenced sections". This was **an LLM pass, not a human verification**: it's labelled as such in `golden/reviews/`, and no item was marked verified from it. It tightened 12 answers; for 15 the claims were confirmed in the full section text (the first review sheet had shown only 700 characters per section, which is fixed).
-- **Corpus gap found through the review:** `configMapRef`, `minAvailable` and the default-deny `podSelector: {}` appear nowhere in the index. The docs include their YAML examples from `content/<lang>/examples/` through `code_sample` shortcodes, and the downloader only fetched `content/<lang>/docs/` (the ConfigMap task page alone references 9 samples; 0 example files are indexed). **H6: resolve code samples into the page text during ingestion.** Probably the highest-impact fix so far for task and "how do I configure" questions; to be measured against the baseline.
+- **Corpus gap found through the review:** `configMapRef`, `minAvailable` and the default-deny `podSelector: {}` are missing from the sections that answer these questions. *(Correction, later the same day: an earlier version of this entry said they "appear nowhere in the index". That was wrong: only the referenced sections were searched. The baseline index does contain them on other pages that show YAML inline: `configMapRef` in 5 chunks, `minAvailable` in 9.)* The docs include their YAML examples from `content/<lang>/examples/` through `code_sample` shortcodes, and the downloader only fetched `content/<lang>/docs/` (the ConfigMap task page alone references 9 samples; 0 example files are indexed). **H6: resolve code samples into the page text during ingestion.** Probably the highest-impact fix so far for task and "how do I configure" questions; to be measured against the baseline.
 - Human review of the golden set (round 2) is pending; no reportable baseline yet.
 
 ### Human review and the first reportable baseline
@@ -85,3 +85,24 @@ Don't tune by intuition. Next: build the **golden set** (~50 questions with know
 
 ### Next
 Measure each hypothesis against this baseline on the same 28 questions, with paired bootstrap intervals (`evalkit.stats.paired_difference_ci`): H6 code samples, H1 heading in the embedded text, H5 HTML cleanup, H2 reranker, H4 fusion weights, H3 query rewriting. One change at a time; every run saved.
+
+### H6: inline code samples. Result: no retrieval gain; small answer gain
+**Change:** the downloader now also fetches `content/<lang>/examples/` (391 en, 86 fr files, checksum-verified), and ingestion inlines every `code_sample`/`codenew` shortcode as a labelled code block, with English fallback for translated pages as on the website. 420 samples inlined, 0 missing. Opt-in flag, recorded in the index config. Page files were byte-identical to the baseline download, so the only difference is the samples.
+
+**Candidate index:** `k8s-1.33-e5-samples` (version 3, 16,173 chunks, +234), promoted to `canary` only; ingestion 1,654 s.
+
+**Retrieval** (`results/20261107T113205Z-h6-code-samples.json`, paired against the R1 baseline, n=28):
+
+| Metric | Baseline | H6 | Paired difference [95% CI] |
+|---|---|---|---|
+| recall@5 | 0.607 | 0.607 | 0.000 [0.000, 0.000] |
+| MRR | 0.490 | 0.530 | +0.040 [−0.007, +0.097] |
+| nDCG@10 | 0.492 | 0.505 | +0.018 [−0.004, +0.044] |
+| recall@10 | 0.667 | 0.643 | −1 question |
+
+- Ranks improved where predicted, on configuration questions: `configmap-env` 5→2, `resource-limits` 2→1, `netpol-default-deny` 4→3, `ingress-vs-service` 2→1. Small losses: `secret-encryption` 3→4, `pod-pending` 3→4, and `taint-dedicated-node` fell from rank 10 out of the top 10 (the new example chunks push some prose down).
+- No question changed its recall@5: the improved ones were already in the top 5, and the 7 complete misses are vocabulary-gap problems that YAML can't fix. Neither MRR nor nDCG interval excludes zero: **no claimable retrieval improvement**.
+
+**Answers** (`results/20261107T113322Z-h6-answers.json`, 3 configuration questions, fields a correct manifest needs): `netpol-default-deny` went from 1/3 to 3/3 fields (`podSelector`, `policyTypes` now present and grounded in the inlined sample); `configmap-env` and `pdb-keep-replicas` were already complete with the baseline, whose index contains those fields on other pages. Too few questions for a number; qualitative evidence only.
+
+**Decision (proposed):** keep H6. It doesn't hurt retrieval measurably, it makes configuration answers better grounded, and it matches what users see on the website. Promote `k8s-1.33-e5-samples` to `active`, and use it as the baseline for the next hypotheses. The vocabulary gap (H1 heading in the embedded text, H2 reranker, H3 query rewriting) is now the clear priority for retrieval.
