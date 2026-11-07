@@ -144,12 +144,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): added the section that documents the default ServiceAccount being assigned
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The second excerpt explicitly confirms that Kubernetes automatically assigns the namespace's default ServiceAccount when none is specified.
 
 ---
 
@@ -240,12 +240,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): added the section that documents kubectl describe pod for init containers
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpts support the Init:N/M meaning, kubectl describe pod, and retrieving logs with kubectl logs -c.
 
 ---
 
@@ -362,11 +362,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+Specify that FallbackToLogsOnError uses the logs when the termination-message file is empty and the container exited with an error. The answer currently omits the second condition.
 
 ---
 
@@ -480,11 +480,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt says the kubelet restarts the container if it can be restarted. It does not explicitly attribute that behavior to the restart policy. Change the wording to “if the container can be restarted” or add a supporting restart-policy excerpt.
 
 ---
 
@@ -555,12 +555,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 2 (Youssef Zemzem, 2026-11-07): removed the undocumented recommendations
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt confirms that scheduling requires enough available memory to satisfy the Pod's request, and shows FailedScheduling with Insufficient memory.
 
 ---
 
@@ -672,11 +672,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt covers image-pull failures in the Waiting state, but does not explicitly document ImagePullBackOff or an incorrect tag. Add the relevant Images documentation for ImagePullBackOff, or narrow the question and answer to the generic image-pull failure described here.
 
 ---
 
@@ -763,12 +763,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+Both the shell command and the --container / -c option for multi-container Pods are documented.
 
 ---
 
@@ -837,12 +837,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The command, local-to-Pod port mapping, and Pod, Deployment, and Service targets are explicitly shown.
 
 ---
 
@@ -1006,12 +1006,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt explicitly demonstrates kubectl logs -f -c ruby web-1 and documents both flags.
 
 ---
 
@@ -1200,12 +1200,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The field-specific command and --recursive option are shown. Note that the excerpt limits recursive output to one level deep.
 
 ---
 
@@ -1392,11 +1392,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt confirms CPU/memory usage for Pods and the Metrics Server requirement, but does not show the specific kubectl top pod syntax. Add the kubectl top pod documentation excerpt.
 
 ---
 
@@ -1565,11 +1565,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The example uses kubectl config --kubeconfig=config-demo use-context dev-frontend. Align the answer with that command, or add documentation supporting use of the default kubeconfig without the explicit --kubeconfig option.
 
 ---
 
@@ -1831,12 +1831,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The command and its use to monitor and confirm Deployment rollout completion are explicitly documented.
 
 ---
 
@@ -1854,12 +1854,12 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The quick reference explicitly provides kubectl diff -f ./my-manifest.yaml for this purpose.
 
 ---
 
@@ -1884,10 +1884,10 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt supports “declarative updates to Pods,” but does not explicitly say “rolling updates.” Replace that phrase with “declarative updates to Pods,” or add a Deployment update-strategy excerpt to support the rolling-update wording.
 
 ---
