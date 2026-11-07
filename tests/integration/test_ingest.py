@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
@@ -182,3 +183,46 @@ def test_progress_is_reported_after_each_batch(engine: Engine, tmp_path: Path) -
     assert len(calls) == report.chunks  # one call per batch of one chunk
     assert calls == sorted(calls)  # counts only grow
     assert calls[-1] == (report.documents, report.chunks)
+
+
+class RecordingEmbedder(HashingEmbedder):
+    """Hashing embedder that remembers the texts it was asked to embed."""
+
+    def __init__(self) -> None:
+        super().__init__(dim=64)
+        self.seen: list[str] = []
+
+    def embed_documents(self, texts: Sequence[str]) -> list[list[float]]:
+        self.seen.extend(texts)
+        return super().embed_documents(texts)
+
+
+def test_embed_headings_changes_only_the_embedding_input(engine: Engine, tmp_path: Path) -> None:
+    snapshot = write_snapshot(tmp_path, {"pods.md": PODS_EN}, version=uuid.uuid4().hex[:6])
+    embedder = RecordingEmbedder()
+    with engine.begin() as conn:
+        report = ingest(
+            conn,
+            read_snapshot(snapshot),
+            index_name=_name(),
+            embedder=embedder,
+            config=ChunkerConfig(min_chars=0),
+            embed_headings=True,
+        )
+    assert any(text.startswith("Pods > Restarting\n\n") for text in embedder.seen)
+
+    with engine.connect() as conn:
+        stored = conn.execute(
+            text("SELECT content FROM rag.chunks WHERE index_version_id = :vid ORDER BY ordinal"),
+            {"vid": report.version.id},
+        ).scalars()
+        recorded = conn.execute(
+            text("SELECT chunker_config->>'embedding_input' FROM rag.index_versions WHERE id = :v"),
+            {"v": report.version.id},
+        ).scalar_one()
+        expected = [
+            c.content
+            for c in chunk_page(PODS_EN, ChunkerConfig(min_chars=0), fallback_title="pods.md")
+        ]
+        assert list(stored) == expected  # stored text is the chunker's output, no heading added
+    assert recorded == "heading_path+content"
