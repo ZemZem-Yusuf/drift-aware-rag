@@ -82,3 +82,10 @@ def test_ticks_with_spaces_inside_the_brackets_count() -> None:
     reviews = parse_reviews(sheet)
     assert reviews["aa-ok"].decision == "verified"
     assert reviews["bb-ok"].decision == "verified"
+
+
+def test_sheet_can_be_limited_to_the_first_drafts() -> None:
+    sheet = render_sheet(ITEMS, excerpt, max_items=2)
+    assert "### `aa-ok`" in sheet
+    assert "### `bb-fix`" in sheet
+    assert "### `cc-bad`" not in sheet

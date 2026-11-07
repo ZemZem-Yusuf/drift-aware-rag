@@ -67,12 +67,15 @@ class Review:
 
 
 def render_sheet(
-    items: Sequence[GoldenItem], excerpt: Callable[[RelevantSection, str], str | None]
+    items: Sequence[GoldenItem],
+    excerpt: Callable[[RelevantSection, str], str | None],
+    *,
+    max_items: int | None = None,
 ) -> str:
+    """Review sheet for the draft items (the first ``max_items`` of them, if given)."""
     parts = [INSTRUCTIONS]
-    for item in items:
-        if item.status != "draft":
-            continue
+    drafts = [i for i in items if i.status == "draft"]
+    for item in drafts[:max_items]:
         lines = [
             f"### `{item.id}`",
             "",
@@ -201,7 +204,10 @@ def _db_excerpt() -> Callable[[RelevantSection, str], str | None]:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Review the golden set.")
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("sheet", help=f"write {SHEET.relative_to(REPO)}")
+    sheet = sub.add_parser("sheet", help=f"write {SHEET.relative_to(REPO)}")
+    sheet.add_argument(
+        "--max-items", type=int, help="only the first N drafts, to review in short sittings"
+    )
     apply = sub.add_parser("apply", help="apply the ticked decisions")
     apply.add_argument("--reviewer", required=True)
     apply.add_argument("--sheet", type=Path, default=SHEET, help="review sheet to read")
@@ -209,9 +215,11 @@ def main(argv: list[str] | None = None) -> None:
 
     items = load_golden(GOLDEN)
     if args.command == "sheet":
-        SHEET.write_text(render_sheet(items, _db_excerpt()), encoding="utf-8", newline="\n")
+        text = render_sheet(items, _db_excerpt(), max_items=args.max_items)
+        SHEET.write_text(text, encoding="utf-8", newline="\n")
         drafts = sum(i.status == "draft" for i in items)
-        print(f"wrote {SHEET.relative_to(REPO)} with {drafts} questions to review")
+        shown = min(drafts, args.max_items) if args.max_items else drafts
+        print(f"wrote {SHEET.relative_to(REPO)} with {shown} of {drafts} draft questions")
         return
 
     updated, report = apply_reviews(
