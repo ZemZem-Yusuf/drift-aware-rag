@@ -260,7 +260,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | human review v2 batch 1 (Youssef Zemzem, 2026-11-07): runAsGroup described at Pod level only, as documented
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -390,7 +390,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07) | self-check: aligned with the referenced text | human review v2 batch 1 (Youssef Zemzem, 2026-11-07): question narrowed to adding capabilities (removing them isn't documented in the section)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -469,11 +469,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt confirms that every namespace has a default ServiceAccount and that spec.serviceAccountName selects a non-default account. However, it does not explicitly state that Kubernetes automatically assigns the default ServiceAccount when the field is omitted. Add the relevant documentation excerpt or remove that claim.
 
 ---
 
@@ -567,7 +567,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -676,7 +676,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -854,7 +854,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -983,7 +983,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1071,7 +1071,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1128,12 +1128,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
-
+The excerpts support checking the Pod status with kubectl get pod and retrieving init-container logs with kubectl logs. They do not document using kubectl describe pod for this troubleshooting procedure. Replace that command with the documented status check or add the relevant documentation excerpt.
 ---
 
 ### `termination-message`
@@ -1249,12 +1248,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
-
+The documentation demonstrates retrieving the termination message using kubectl get pod --output=yaml and accessing lastState.terminated.message. It does not demonstrate viewing the message with kubectl describe. Add the relevant documentation or change the question to refer to inspecting the Pod status.
 ---
 
 ### `debug-no-shell`
@@ -1343,7 +1341,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1462,12 +1460,11 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
-
+The documentation supports the explanation that exceeding the memory limit can terminate a container and that the kubelet restarts it when its restart policy allows. However, the recommendations to raise the limit or reduce memory usage are not explicitly supported by the excerpts. Remove these recommendations or provide supporting documentation.
 ---
 
 ### `pods-evicted`
@@ -1568,7 +1565,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1724,7 +1721,7 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 *Drafting note:* golden v2 draft (2026-11-07)
 
 **Decision** (tick one):
-- [ ] ✅ Correct as written
+- [x] ✅ Correct as written
 - [ ] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
@@ -1801,10 +1798,10 @@ When done, run: `uv run driftrag-golden apply --reviewer "Your Name"`
 
 **Decision** (tick one):
 - [ ] ✅ Correct as written
-- [ ] ✏️ Needs changes (say what under Notes)
+- [x] ✏️ Needs changes (say what under Notes)
 - [ ] ❌ Reject
 
 **Notes:**
-
+The excerpt confirms that a Pod remains Pending when no node has sufficient available memory to satisfy its memory request. However, lowering the request or adding capacity is not explicitly recommended in the supplied text. Remove these recommendations or add supporting documentation.
 
 ---
