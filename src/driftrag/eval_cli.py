@@ -11,12 +11,14 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from evalkit.golden import GoldenItem, Status, load_golden, select
 from evalkit.retrieval_eval import RetrievalReport, evaluate_retrieval
-from evalkit.stats import bootstrap_ci
+from evalkit.stats import bootstrap_ci, paired_difference_ci
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_GOLDEN = REPO / "golden" / "k8s-1.33.jsonl"
@@ -29,6 +31,27 @@ def _breakdown(report: RetrievalReport, field: str) -> dict[str, dict[str, objec
     return {
         name: {"n": len(values), f"recall@{report.k}": str(bootstrap_ci(values))}
         for name, values in sorted(groups.items())
+    }
+
+
+def compare_with(baseline_path: Path, report: RetrievalReport) -> dict[str, Any]:
+    """Paired differences (this run minus baseline) on the questions both runs scored."""
+    saved = json.loads(baseline_path.read_text(encoding="utf-8"))
+    before = {item["id"]: item for item in saved["results"]["items"]}
+    pairs = [(before[s.id], s) for s in report.items if s.id in before]
+    if not pairs:
+        raise SystemExit("no common questions with the baseline run")
+    differences = {}
+    for metric in ("recall_at_k", "reciprocal_rank", "ndcg_at_k"):
+        old = [float(b[metric]) for b, _ in pairs]
+        new = [float(getattr(c, metric)) for _, c in pairs]
+        differences[metric] = str(paired_difference_ci(old, new))
+    return {
+        "baseline_file": baseline_path.name,
+        "n": len(pairs),
+        "differences": differences,
+        "improved": [c.id for b, c in pairs if c.recall_at_k > float(b["recall_at_k"])],
+        "worse": [c.id for b, c in pairs if c.recall_at_k < float(b["recall_at_k"])],
     }
 
 
@@ -45,6 +68,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--candidates", type=int, default=50)
     parser.add_argument("--include-drafts", action="store_true")
     parser.add_argument("--run-name", default="baseline")
+    parser.add_argument("--alias", choices=["active", "canary"], default="active")
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        help="saved run to compare with, question by question (paired bootstrap)",
+    )
     args = parser.parse_args(argv)
 
     all_items = load_golden(args.golden)
@@ -55,7 +84,7 @@ def main(argv: list[str] | None = None) -> None:
     settings = get_settings()
     engine = make_engine(settings.database_url.get_secret_value())
     embedder = E5Embedder()
-    retriever = HybridRetriever(engine, embedder, candidates=args.candidates)
+    retriever = HybridRetriever(engine, embedder, alias=args.alias, candidates=args.candidates)
     version_ids: set[int] = set()
 
     def search(question: str, lang: str) -> list[tuple[str, str]]:
@@ -71,6 +100,13 @@ def main(argv: list[str] | None = None) -> None:
         print(f"  recall@{k}: {report.recall_at_k}")
     print(f"  MRR:       {main_report.mrr}")
     print(f"  nDCG@10:   {reports[10].ndcg_at_k}")
+    comparison = compare_with(args.baseline, main_report) if args.baseline else None
+    if comparison:
+        print(f"  vs {comparison['baseline_file']} (paired, n={comparison['n']}):")
+        for metric, value in comparison["differences"].items():
+            print(f"    {metric}: {value}")
+        print(f"    improved: {comparison['improved'] or 'none'}")
+        print(f"    worse:    {comparison['worse'] or 'none'}")
     misses = [s for s in main_report.items if s.recall_at_k == 0]
     print(f"  no relevant source in top {args.k}: {', '.join(s.id for s in misses) or 'none'}")
 
@@ -90,12 +126,14 @@ def main(argv: list[str] | None = None) -> None:
             "k": args.k,
             "candidates": args.candidates,
             "embedder": embedder.name,
+            "alias": args.alias,
         },
         results={
             "summary": {
                 **{f"recall@{k}": str(r.recall_at_k) for k, r in reports.items()},
                 "mrr": str(main_report.mrr),
                 "ndcg@10": str(reports[10].ndcg_at_k),
+                "comparison": comparison,
                 "by_lang": _breakdown(main_report, "lang"),
                 "by_category": _breakdown(main_report, "category"),
             },
