@@ -1,0 +1,89 @@
+{
+  "experiment": "R1-retrieval",
+  "run": "h1-vector-ranks",
+  "environment": {
+    "recorded_at": "2026-11-07T12:19:35+00:00",
+    "git": {
+      "commit": "46a1eebe114948264ed1e6d170ca3036ec8965ed",
+      "dirty": true
+    },
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "packages": {
+      "drift-aware-rag": "0.0.1",
+      "litellm": "1.103.10",
+      "sentence-transformers": "6.2.0",
+      "torch": "2.15.0+cpu",
+      "sqlalchemy": "2.1.8",
+      "psycopg": "3.3.8",
+      "pgvector": "0.5.1"
+    },
+    "settings": {
+      "generator_model": "gemini/gemini-2.5-flash",
+      "fallback_model": null,
+      "llm_daily_request_limits": {
+        "gemini": 200,
+        "groq": 500
+      },
+      "gemini_key_configured": true,
+      "groq_key_configured": false
+    }
+  },
+  "config": {
+    "candidates": 200,
+    "aliases": [
+      "active",
+      "canary"
+    ]
+  },
+  "results": {
+    "restart-deployment": {
+      "active": {
+        "index": "k8s-1.33-e5-samples",
+        "best_vector_rank": null,
+        "best_keyword_rank": 17
+      },
+      "canary": {
+        "index": "k8s-1.33-e5-samples-headings",
+        "best_vector_rank": null,
+        "best_keyword_rank": 17
+      }
+    },
+    "taint-dedicated-node": {
+      "active": {
+        "index": "k8s-1.33-e5-samples",
+        "best_vector_rank": 9,
+        "best_keyword_rank": 34
+      },
+      "canary": {
+        "index": "k8s-1.33-e5-samples-headings",
+        "best_vector_rank": 15,
+        "best_keyword_rank": 34
+      }
+    },
+    "daemonset-agent": {
+      "active": {
+        "index": "k8s-1.33-e5-samples",
+        "best_vector_rank": null,
+        "best_keyword_rank": 12
+      },
+      "canary": {
+        "index": "k8s-1.33-e5-samples-headings",
+        "best_vector_rank": null,
+        "best_keyword_rank": 12
+      }
+    },
+    "hpa-cpu": {
+      "active": {
+        "index": "k8s-1.33-e5-samples",
+        "best_vector_rank": 5,
+        "best_keyword_rank": 49
+      },
+      "canary": {
+        "index": "k8s-1.33-e5-samples-headings",
+        "best_vector_rank": 15,
+        "best_keyword_rank": 49
+      }
+    }
+  }
+}

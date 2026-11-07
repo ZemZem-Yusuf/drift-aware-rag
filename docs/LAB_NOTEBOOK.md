@@ -108,3 +108,20 @@ Measure each hypothesis against this baseline on the same 28 questions, with pai
 **Decision:** keep H6. It doesn't hurt retrieval measurably, it makes configuration answers better grounded, and it matches what users see on the website. The vocabulary gap (H1 heading in the embedded text, H2 reranker, H3 query rewriting) is now the clear priority for retrieval.
 
 **Promotion (2026-11-07 11:38 UTC, approved by Youssef Zemzem):** `active` moved from version 2 (`k8s-1.33-e5`) to version 3 (`k8s-1.33-e5-samples`) in one transaction, recorded in `rag.alias_history` with the reason. Rollback is `rollback_alias(conn, "active", reason=...)`, which restores version 2. First real use of the blue/green index registry (ADR-0001). **New baseline for the next hypotheses:** the H6 run, `results/20261107T113205Z-h6-code-samples.json` (recall@5 0.607, MRR 0.530, nDCG@10 0.505, n=28).
+
+### H1: embed section titles with the chunk text. Result: rejected
+**Change:** `driftrag-ingest --embed-headings` gives the embedding model `"<section path>\n\n<chunk text>"` instead of the text alone. Stored text, full-text index and prompts unchanged. Candidate index `k8s-1.33-e5-samples-headings` (version 4, `canary`): the same 16,173 chunks as the active index, so only the vectors differ. Ingestion 1,888 s.
+
+**Retrieval** (`results/20261107T121847Z-h1-embed-headings.json`, paired against the H6 baseline, n=28):
+
+| Metric | H6 baseline | H1 | Paired difference [95% CI] |
+|---|---|---|---|
+| recall@5 | 0.607 | 0.583 | −0.024 [−0.107, +0.036] |
+| MRR | 0.530 | 0.548 | +0.018 [−0.071, +0.113] |
+| nDCG@10 | 0.505 | 0.515 | +0.009 [−0.050, +0.071] |
+
+- Ranks moved both ways: `netpol-default-deny` 3→1, `init-container-setup` 3→1, `fr-labels-selectors` 2→1, `secret-encryption` 4→3; but `pod-pending` 4→6 (out of the top 5), `probes-difference`, `crashloop`, `ingress-vs-service` and `drain-node` each lost a place. None of the vocabulary-gap misses was fixed.
+- **Diagnosis** (`results/20261107T121935Z-h1-vector-ranks.json`, vector rank of the relevant page, top 200): restart and DaemonSet are not in the top 200 with or without headings; taint fell from 9 to 15 and HPA from 5 to 15 with headings. Long section paths seem to dilute the chunk's meaning more than they help this small model.
+- **Side finding (fusion):** for `hpa-cpu`, vector search ranks the right page #5 on the active index, yet it never reaches the fused top 10. RRF rewards chunks found by *both* searches, so a strong single-search hit loses to weaker chunks found by both. Evidence for H4 (fusion weights / candidate depth).
+
+**Decision:** reject H1; `active` stays on version 3. The vocabulary gap isn't solvable by changing what the small embedding model sees. Next candidates, in order: **H2 cross-encoder reranker** over the fused top 50 (judges question and passage together), **H3 query rewriting** (map user wording to documentation terms, e.g. "keep pods off a node" → taints), and **H4 fusion weights**.
