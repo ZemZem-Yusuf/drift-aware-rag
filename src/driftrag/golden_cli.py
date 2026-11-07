@@ -24,6 +24,7 @@ from evalkit.golden import GoldenItem, RelevantSection, load_golden, save_golden
 REPO = Path(__file__).resolve().parents[2]
 GOLDEN = REPO / "golden" / "k8s-1.33.jsonl"
 SHEET = REPO / "golden" / "REVIEW.md"
+EXCERPT_LIMIT = 6000  # characters of documentation shown per referenced section
 
 Decision = Literal["verified", "changes", "rejected"]
 _BOXES: dict[str, Decision] = {
@@ -162,21 +163,32 @@ def _db_excerpt() -> Callable[[RelevantSection, str], str | None]:
     conn = psycopg.connect(url)
 
     def excerpt(section: RelevantSection, lang: str) -> str | None:
-        row = conn.execute(
+        # The whole section (all its chunks, in order), so claims can be checked against the
+        # full source. Round 1 showed only the first 700 characters, which hid supporting text.
+        rows = conn.execute(
             """
-            SELECT c.content FROM rag.chunks c
+            SELECT c.heading_path, c.content FROM rag.chunks c
             JOIN rag.documents d ON d.id = c.document_id
             JOIN rag.index_aliases a ON a.index_version_id = c.index_version_id
             WHERE a.alias = 'active' AND d.path = %s AND c.lang = %s
               AND (%s::text IS NULL OR c.heading_path LIKE %s || '%%')
-            ORDER BY c.ordinal LIMIT 1
+            ORDER BY c.ordinal
             """,
             (section.document, lang, section.section, section.section),
-        ).fetchone()
-        if row is None:
+        ).fetchall()
+        if not rows:
             return None
-        text = str(row[0])
-        return text if len(text) <= 700 else text[:700].rsplit(" ", 1)[0] + " …"
+        parts: list[str] = []
+        previous_heading = None
+        for heading, content in rows:
+            if heading != previous_heading:
+                parts.append(f"[{heading}]")
+                previous_heading = heading
+            parts.append(str(content))
+        text = "\n".join(parts)
+        if len(text) > EXCERPT_LIMIT:
+            text = text[:EXCERPT_LIMIT].rsplit(" ", 1)[0] + " … (section continues)"
+        return text
 
     return excerpt
 
@@ -187,6 +199,7 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("sheet", help=f"write {SHEET.relative_to(REPO)}")
     apply = sub.add_parser("apply", help="apply the ticked decisions")
     apply.add_argument("--reviewer", required=True)
+    apply.add_argument("--sheet", type=Path, default=SHEET, help="review sheet to read")
     args = parser.parse_args(argv)
 
     items = load_golden(GOLDEN)
@@ -197,7 +210,7 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     updated, report = apply_reviews(
-        items, parse_reviews(SHEET.read_text(encoding="utf-8")), args.reviewer.strip()
+        items, parse_reviews(args.sheet.read_text(encoding="utf-8")), args.reviewer.strip()
     )
     save_golden(GOLDEN, updated)
     for name in ("verified", "rejected"):
