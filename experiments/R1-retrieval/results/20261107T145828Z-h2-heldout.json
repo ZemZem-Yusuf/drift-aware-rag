@@ -1,0 +1,132 @@
+{
+  "experiment": "R1-retrieval",
+  "run": "h2-heldout",
+  "environment": {
+    "recorded_at": "2026-11-07T14:58:28+00:00",
+    "git": {
+      "commit": "670209f068aaf9096c233aa5213ea8bb8412ba62",
+      "dirty": false
+    },
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "packages": {
+      "drift-aware-rag": "0.0.1",
+      "litellm": "1.103.10",
+      "sentence-transformers": "6.2.0",
+      "torch": "2.15.0+cpu",
+      "sqlalchemy": "2.1.8",
+      "psycopg": "3.3.8",
+      "pgvector": "0.5.1"
+    },
+    "settings": {
+      "generator_model": "gemini/gemini-2.5-flash",
+      "fallback_model": null,
+      "llm_daily_request_limits": {
+        "gemini": 200,
+        "groq": 500
+      },
+      "gemini_key_configured": true,
+      "groq_key_configured": false
+    },
+    "index": {
+      "id": 2,
+      "name": "k8s-1.33-e5",
+      "status": "ready",
+      "embedding_model": "intfloat/multilingual-e5-small@614241f6",
+      "embedding_dim": 384,
+      "chunker_config": {
+        "version": 1,
+        "strategy": "markdown-headings",
+        "config_id": "caf19343c281",
+        "max_chars": 1200,
+        "min_chars": 80,
+        "overlap_chars": 200
+      },
+      "created_at": "2026-11-07T09:24:35.682447+00:00",
+      "per_lang": {
+        "en": {
+          "chunks": 13910,
+          "documents": 1444
+        },
+        "fr": {
+          "chunks": 2029,
+          "documents": 211
+        }
+      }
+    }
+  },
+  "config": {
+    "k": 5,
+    "first_stage": {
+      "candidates": 50,
+      "rrf_k": 60,
+      "weights": [
+        1,
+        1
+      ]
+    },
+    "reranker": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1@1427fd65",
+    "rerank_depth": 30,
+    "rerank_with_heading": true,
+    "excluded_original_ids": [
+      "configmap-env",
+      "crashloop",
+      "cronjob-nightly",
+      "daemonset-agent",
+      "drain-node",
+      "fr-labels-selectors",
+      "fr-pod-multi-container",
+      "fr-rollback",
+      "fr-scale",
+      "fr-service-types",
+      "hpa-cpu",
+      "image-pull-policy",
+      "ingress-vs-service",
+      "init-container-setup",
+      "namespaces-when",
+      "netpol-default-deny",
+      "pdb-keep-replicas",
+      "pod-pending",
+      "probes-difference",
+      "pvc-request-storage",
+      "rbac-role-clusterrole",
+      "resource-limits",
+      "restart-deployment",
+      "rollback-deployment",
+      "scale-deployment",
+      "secret-encryption",
+      "service-types",
+      "taint-dedicated-node"
+    ],
+    "questions": 57
+  },
+  "results": {
+    "questions": 57,
+    "baseline": {
+      "recall@5": "0.558 [0.442, 0.675] (n=57)",
+      "mrr": "0.459 [0.353, 0.569] (n=57)"
+    },
+    "rerank-30": {
+      "recall@5": "0.613 [0.494, 0.724] (n=57)",
+      "mrr": "0.467 [0.366, 0.569] (n=57)"
+    },
+    "recall@5_diff_95": "0.054 [-0.026, 0.136] (n=57)",
+    "mrr_diff_95": "0.008 [-0.099, 0.113] (n=57)",
+    "improved": [
+      "statefulset-vs-deployment",
+      "pv-mount-steps",
+      "secret-as-files",
+      "pod-service-account",
+      "exec-shell",
+      "kubectl-diff",
+      "default-storageclass",
+      "fr-emptydir"
+    ],
+    "worse": [
+      "init-stuck",
+      "logs-one-container",
+      "rollout-status",
+      "fr-private-registry"
+    ]
+  }
+}

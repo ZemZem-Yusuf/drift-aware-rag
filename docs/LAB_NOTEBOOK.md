@@ -171,3 +171,52 @@ H6, H1 and H4 changed what is indexed, what the embedding model sees, and how th
 **Decision:** don't enable reranking by default yet. Keep the code (off by default). Two things are needed before it can be adopted:
 1. **More verified questions.** The golden set needs to grow (from 28 to roughly 80–100 retrieval questions) to have a reasonable chance of detecting an effect of this size. Every hypothesis so far was tested at a sample size that could only detect large effects.
 2. **Latency.** Candidates to measure: shorter pairs (max 256 tokens), fewer candidates (top 20), an ONNX or int8-quantised model, or reranking only when first-stage scores are ambiguous.
+
+### Golden set v2: 85 retrieval questions
+57 new questions were drafted, pre-reviewed by an LLM (disclosed in `golden/README.md`; nothing counted as verified from that pass) and then reviewed by Youssef Zemzem in 5 batches against the documentation. Rule applied throughout: a reference answer contains only what the referenced sections state; unsupported claims were removed, or the section that supports them was added. Result: 89 verified items, of which **85 retrieval questions** (33 task, 25 concept, 15 command, 12 troubleshooting; 70 en, 15 fr) and 4 out-of-scope; 2 French drafts remain unverified and are excluded. Paired intervals are about 40% narrower than with 28 questions.
+
+**Record-keeping bug found and fixed.** The first v2 runs were flagged `dirty: true` because the git check counted *untracked results files from earlier runs* as uncommitted changes. `git_state` now ignores only new files under `experiments/*/results/`; any other change, including a modified results file or a new source file, still makes a run dirty (tested). The flagged runs are kept (commit `9f0dd10`); all four were re-run on a clean commit and reproduced the same numbers exactly.
+
+### H6, H1 and H4 re-run on 85 questions
+Clean runs at commit `9f0dd10`; same code, settings and indexes as the n=28 runs.
+
+| Hypothesis | Comparison | n=28 result | **n=85 result** (paired, 95%) | Questions changed |
+|---|---|---|---|---|
+| H6 code samples | index 3 vs index 2 | recall@5 0.000 | **−0.026 [−0.059, −0.003]** | 0 gained; lost `pod-service-account`, `init-prepare-files`, `init-stuck`, `fr-private-registry` |
+| H1 headings in embeddings | index 4 vs index 3 | −0.024 [−0.107, +0.036] | +0.001 [−0.042, +0.047] | 3 gained, 4 lost |
+| H4 keyword weight ×2 | same index | −0.089 [−0.250, 0.000] | −0.041 [−0.088, −0.006] | 0 gained, 4 lost |
+| H4 best other setting (vector ×2) | same index | −0.018 | +0.007 [−0.035, +0.049] | 5 gained, 3 lost |
+
+Files: `results/20261107T133108Z-gv2-index2-no-samples.json`, `…133131Z-gv2-index3-samples.json`, `…133155Z-gv2-index4-headings.json`, `…133254Z-h4-fusion-sweep.json`. Baseline on index 2: recall@5 0.575 [0.480, 0.669], MRR 0.469, n=85 (en 0.540, fr 0.733).
+
+- **H6 reverses.** With 28 questions the code samples looked neutral; with 85 the interval excludes zero. The effect is small (about 2 questions in 85) and in one direction only: the extra example chunks push relevant prose out of the top 5, mostly on task pages. MRR is +0.017 [−0.013, +0.051], so samples sometimes rank a hit higher but never add one. The answer-quality gain that justified H6 rested on 1 question out of 3.
+- **H1 and H4 stay rejected.** H1 is now centred on zero. Keyword weighting up is confirmed harmful, with an interval that now excludes zero at 95%; no fusion setting helps.
+
+**Rollback (2026-11-07 14:44 UTC, approved by Youssef Zemzem):** `active` moved from version 3 (`k8s-1.33-e5-samples`) back to version 2 (`k8s-1.33-e5`) in one transaction, recorded as entry 9 of `rag.alias_history` with the H6 numbers as the reason. `canary` stays on version 4; version 3 is kept, not deleted. **Lesson:** H6 was promoted on a "no measurable regression" result from 28 questions, a sample that could only detect large effects. Absence of evidence at small n isn't evidence of no harm; promotion now needs the larger set.
+
+### H2 re-run on 85 questions, plus a held-out check. Result: consistent gain, still not significant
+Same pre-declared grid (`h2_rerank.py`, unchanged), now on the active index 2 and 85 questions; clean commit `b61292f` (`results/20261107T145537Z-h2-rerank.json`).
+
+| Setting | recall@5 | MRR | recall@5 diff 95% | corrected (98.33%) | p50 / p95 latency |
+|---|---|---|---|---|---|
+| no reranking (baseline) | 0.575 | 0.469 | — | — | 68 / 124 ms |
+| rerank top 30, section path + text | **0.626** | 0.505 | +0.052 [−0.014, +0.122] | [−0.027, +0.135] | 1,933 / 2,258 ms |
+| rerank top 30, text only | 0.587 | 0.509 | +0.013 [−0.055, +0.079] | [−0.074, +0.094] | 1,840 / 2,227 ms |
+| rerank top 50, section path + text | 0.615 | 0.501 | +0.040 [−0.037, +0.120] | [−0.055, +0.139] | 3,123 / 3,639 ms |
+
+**Held-out check** (`h2_heldout.py`, written and committed at `670209f` before it was run, `results/20261107T145828Z-h2-heldout.json`): only the setting singled out by the first H2 run (top 30, section path + text), on the 57 questions that didn't exist when H2 was designed; one comparison, plain 95% interval.
+
+| | recall@5 | MRR |
+|---|---|---|
+| baseline | 0.558 [0.442, 0.675] | 0.459 |
+| rerank top 30 | 0.613 [0.494, 0.724] | 0.467 |
+| paired difference | **+0.054 [−0.026, +0.136]** | +0.008 [−0.099, +0.113] |
+
+8 new questions gained (`statefulset-vs-deployment`, `pv-mount-steps`, `secret-as-files`, `pod-service-account`, `exec-shell`, `kubectl-diff`, `default-storageclass`, `fr-emptydir`), 4 lost (`init-stuck`, `logs-one-container`, `rollout-status`, `fr-private-registry`).
+
+- **The effect replicates in size:** +0.065 on the original 28, +0.054 on 57 fresh questions, +0.052 on all 85. It is not an artefact of choosing the setting on the first sample. **But no interval excludes zero**, so it can't be claimed as an improvement yet. Plausible true effect: around +0.05 recall@5. From the n=85 interval (standard error ≈ 0.035), detecting that with 80% power at 95% confidence would need roughly 300 questions, more than a golden set can reasonably grow to by hand. A more sensitive measure (graded relevance, or more relevant sections per question) is a better lever than size alone.
+- Top 30 with the section path stays the best setting; text only and top 50 are weaker, as in the first run.
+- The losses are mostly troubleshooting and command questions (`logs-one-container`, `rollout-status`, `init-stuck`), where the reranker prefers explanatory prose over the reference page that holds the command.
+- **Latency:** p50 1.9 s here vs 5.3 s in the first H2 run, with the same code, model and settings. The cause isn't established (machine load is the likely candidate; the index also differs, 2 vs 3, with longer example chunks in 3). Latency needs a dedicated benchmark before any number is quoted as a property of the system. Either way it is 25–80× the first stage.
+
+**Decision:** keep reranking off by default. The evidence now points the same way on three samples, which justifies investing in it, not shipping it. Next: (1) make it cheaper and measure latency properly (top 20, 256-token pairs, ONNX/int8, rerank only when first-stage scores are close); (2) H3 query rewriting for the misses that never enter the candidates (`restart-deployment`), which reranking can't fix.
