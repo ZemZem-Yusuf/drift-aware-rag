@@ -33,7 +33,10 @@ _BOXES: dict[str, Decision] = {
     "Reject": "rejected",
 }
 _BLOCK = re.compile(r"^### `([a-z0-9-]+)`", re.MULTILINE)
-_BOX = re.compile(r"^- \[([ xX])\] .*?(Correct as written|Needs changes|Reject)", re.MULTILINE)
+# Tolerant of how people tick boxes by hand: "[x]", "[X]", "[x ]", "[ x]" all count.
+_BOX = re.compile(
+    r"^\s*- \[\s*([xX]?)\s*\] .*?(Correct as written|Needs changes|Reject)", re.MULTILINE
+)
 
 INSTRUCTIONS = """# Golden set review
 

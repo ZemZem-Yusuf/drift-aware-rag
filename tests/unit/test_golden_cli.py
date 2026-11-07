@@ -73,3 +73,12 @@ def test_two_ticked_boxes_is_an_error_and_changes_nothing() -> None:
     updated, report = apply_reviews([golden("aa-ok")], parse_reviews(sheet), "Y")
     assert report["errors"] == ["aa-ok: more than one box ticked"]
     assert updated[0].status == "draft"
+
+
+def test_ticks_with_spaces_inside_the_brackets_count() -> None:
+    sheet = render_sheet([golden("aa-ok"), golden("bb-ok")], excerpt)
+    sheet = sheet.replace("- [ ] ✅ Correct as written", "- [x ] ✅ Correct as written", 1)
+    sheet = sheet.replace("- [ ] ✅ Correct as written", "- [ X] ✅ Correct as written", 1)
+    reviews = parse_reviews(sheet)
+    assert reviews["aa-ok"].decision == "verified"
+    assert reviews["bb-ok"].decision == "verified"
